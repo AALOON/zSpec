@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zSpec", "zSpec\zSpec.csproj", "{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zSpec.Tests", "zSpec.Tests\zSpec.Tests.csproj", "{D7C4C2FB-1401-452E-861F-C31022D71F0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7C4C2FB-1401-452E-861F-C31022D71F0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7C4C2FB-1401-452E-861F-C31022D71F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7C4C2FB-1401-452E-861F-C31022D71F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7C4C2FB-1401-452E-861F-C31022D71F0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BF1CF75-3A2F-4D7C-9F74-525D87152E56}
+	EndGlobalSection
+EndGlobal
