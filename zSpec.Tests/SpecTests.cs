@@ -48,6 +48,21 @@ namespace zSpec.Tests
             list.Should().OnlyContain(p => p.Age >= 18 || p.Email != null);
         }
 
+        [Fact]
+        public void Test6()
+        {
+            var user = new User { Age = 10, Name = "Alpha" };
+            var i1 = user.IsHasName("Alpha");
+            var i2 = user.IsHasName("Alpha1");
+            var i3 = user.IsHasName("Alpha2");
+        }
+
+        [Fact]
+        public void Test7()
+        {
+            var list = DbContext.Users.Where(User.IsHasNameSpec("Alpha")).ToList();
+        }
+
         /// <summary>
         /// TestBase [0] --------------------------1
         /// SELECT "user"."Id", "user"."Age", "user"."Email", "user"."Name"

@@ -15,16 +15,45 @@ namespace zSpec.Tests
             Seed();
         }
 
+        /// <summary>
+        /// SELECT "u"."Id", "u"."Age", "u"."Email", "u"."Name"
+        /// FROM "Users" AS "u"
+        /// WHERE "u"."Name" LIKE 'Alpha' || '%' AND (substr("u"."Name", 1, length('Alpha')) = 'Alpha')
+        /// </summary>
         [Fact]
         public void Test1()
         {
             var filter = new AutoFilter<User, UserFilter>(new UserFilter()
             {
-                Name = "Alpha"
+                Name = "lph"
             });
             var list = DbContext.Users.Filter(filter).ToList();
             list.Should().HaveCount(1);
             list.Should().OnlyContain(p => p.Name == "Alpha");
+        }
+
+        [Fact]
+        public void Test3()
+        {
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter()
+            {
+                Email = "gamma@gmail.com"
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(1);
+            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
+        }
+
+        [Fact]
+        public void Test4()
+        {
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter()
+            {
+                Email = "gamma@gmail.com"
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(1);
+            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
         }
 
         [Fact]

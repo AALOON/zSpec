@@ -36,5 +36,7 @@ namespace zSpec.Specs
 
         public Spec<TParent> From<TParent>(Expression<Func<TParent, T>> mapFrom)
             => _expression.From(mapFrom);
+
+        public bool IsSatisfiedByNonCache(T obj) => _expression.Compile()(obj);
     }
 }

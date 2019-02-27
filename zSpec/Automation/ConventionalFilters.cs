@@ -2,25 +2,43 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using zSpec.Automation.Attributes;
 
 namespace zSpec.Automation
 {
     public class ConventionalFilters
     {
-        private static readonly MethodInfo StartsWith = typeof(string)
+        private static readonly MethodInfo StartsWithMethod = typeof(string)
             .GetMethod("StartsWith", new[] { typeof(string) });
 
-        private static readonly Dictionary<Type, Func<MemberExpression, Expression, Expression>> Filters
-            = new Dictionary<Type, Func<MemberExpression, Expression, Expression>>
+        private static readonly MethodInfo ContainsMethod = typeof(string)
+            .GetMethod("Contains", new[] { typeof(string) });
+
+        private static readonly Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>> Filters
+            = new Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>>
             {
-                { typeof(string),  (p, v) => Expression.Call(p, StartsWith, v) }
+                { new TypeKey(typeof(string), StartWithFilterAttribute.Key),  (p, v) => Expression.Call(p, StartsWithMethod, v) },
+                { new TypeKey(typeof(string), ContainsFilterAttribute.Key),  (p, v) => Expression.Call(p, ContainsMethod, v) },
+                { new TypeKey(typeof(string), string.Empty),  Expression.Equal }
             };
 
         internal ConventionalFilters()
         {
         }
 
-        public Func<MemberExpression, Expression, Expression> this[Type key]
+        public static Dictionary<Type, string> AttributeKeys { get; } = new Dictionary<Type, string>
+        {
+            { typeof(StartWithFilterAttribute),  StartWithFilterAttribute.Key },
+            { typeof(ContainsFilterAttribute),  ContainsFilterAttribute.Key }
+        };
+
+        public Func<MemberExpression, Expression, Expression> this[(Type Type, string Key) key]
+        {
+            get => this[new TypeKey(key.Type, key.Key)];
+            set => Filters[new TypeKey(key.Type, key.Key)] = value ?? throw new ArgumentException(nameof(value));
+        }
+
+        public Func<MemberExpression, Expression, Expression> this[TypeKey key]
         {
             get => Filters.ContainsKey(key)
                 ? Filters[key]

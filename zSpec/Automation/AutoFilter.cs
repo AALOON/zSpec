@@ -2,7 +2,7 @@
 
 namespace zSpec.Automation
 {
-    public class AutoFilter<TEntity, TPredicate>
+    public class AutoFilter<TEntity, TPredicate> : IAutoFilter<TEntity>
         where TEntity : class
     {
         private readonly TPredicate _predicate;

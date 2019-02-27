@@ -1,6 +1,5 @@
 ﻿using System;
 using zSpec.Specs;
-using zSpec.Expressions;
 
 namespace zSpec.Tests.Context
 {
@@ -32,7 +31,6 @@ namespace zSpec.Tests.Context
         public static Spec<User> IsHasNameSpec(string name)
             => new Spec<User>(user => user.Name == name);
 
-        public bool IsHasName(string name) => IsHasNameSpec(name).IsSatisfiedBy(this);
-
+        public bool IsHasName(string name) => IsHasNameSpec(name).IsSatisfiedByNonCache(this);
     }
 }

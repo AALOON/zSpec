@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using zSpec.Expressions;
 
 namespace zSpec.Automation
 {
+    public static class Conventions
+    {
+        public static ConventionalFilters Filters { get; } = new ConventionalFilters();
+    }
+
     public static class Conventions<TSubject>
     {
         public static IOrderedQueryable<TSubject> Sort(IQueryable<TSubject> query, string propertyName)
@@ -52,20 +58,14 @@ namespace zSpec.Automation
                 .First(x => x.Name == methodName && x.GetParameters().Length == 2)
                 .MakeGenericMethod(typeof(TSubject), property.PropertyType);
 
-            return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new [] { query, expression });
+            return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new[] { query, expression });
         }
 
         public static IQueryable<TSubject> Filter<TPredicate>(IQueryable<TSubject> query,
             TPredicate predicate,
             ComposeKind composeKind = ComposeKind.And)
         {
-            var filterProps = FastTypeInfo<TPredicate>
-                .PublicProperties
-                .ToArray();
-
-            var filterPropNames = filterProps
-                .Select(x => x.Name)
-                .ToArray();
+            var filterMap = FastTypeInfo<TPredicate>.PublicPropertiesMap;
 
             var modelType = typeof(TSubject);
 
@@ -73,11 +73,12 @@ namespace zSpec.Automation
 
             var props = FastTypeInfo<TSubject>
                 .PublicProperties
-                .Where(x => filterPropNames.Contains(x.Name))
-                .Select(x => new
+                .Where(info => filterMap.ContainsKey(info.Name))
+                .Select(info => new
                 {
-                    Property = x,
-                    Value = filterProps.Single(y => y.Name == x.Name).GetValue(predicate)
+                    Property = info,
+                    Value = filterMap[info.Name].GetValue(predicate),
+                    Key = GetAttributeKeyOrDefault(filterMap[info.Name])
                 })
                 .Where(x => x.Value != null)
                 .Select(x =>
@@ -86,7 +87,7 @@ namespace zSpec.Automation
                     Expression value = Expression.Constant(x.Value);
 
                     value = Expression.Convert(value, property.Type);
-                    var body = Conventions.Filters[property.Type](property, value);
+                    var body = Conventions.Filters[new TypeKey(property.Type, x.Key)](property, value);
 
                     return Expression.Lambda<Func<TSubject, bool>>(body, parameter);
                 })
@@ -103,10 +104,16 @@ namespace zSpec.Automation
 
             return query.Where(expr);
         }
-    }
 
-    public static class Conventions
-    {
-        public static ConventionalFilters Filters { get; } = new ConventionalFilters();
+        private static string GetAttributeKeyOrDefault(PropertyInfo info)
+        {
+            
+            var attribute = info
+                .GetCustomAttributes(true)
+                .FirstOrDefault(p => ConventionalFilters.AttributeKeys.ContainsKey(p.GetType()));
+            if (attribute != null)
+                return ConventionalFilters.AttributeKeys[attribute.GetType()];
+            return string.Empty;
+        }
     }
 }

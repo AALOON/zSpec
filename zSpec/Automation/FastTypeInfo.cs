@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,16 +15,18 @@ namespace zSpec.Automation
         static FastTypeInfo()
         {
             var type = typeof(T);
-            Attributes = type.GetCustomAttributes().ToArray();
+            Attributes = type.GetCustomAttributes().ToHashSet();
 
             PublicProperties = type
                 .GetProperties()
                 .Where(x => x.CanRead && x.CanWrite)
-                .ToArray();
+                .ToHashSet();
+
+            PublicPropertiesMap = PublicProperties.ToDictionary(p => p.Name);
 
             PublicMethods = type.GetMethods()
                 .Where(x => x.IsPublic && !x.IsAbstract)
-                .ToArray();
+                .ToHashSet();
 
             Constructors = typeof(T).GetConstructors();
             Activators = new ConcurrentDictionary<string, ObjectActivator<T>>();
@@ -33,11 +36,13 @@ namespace zSpec.Automation
 
         private static ConcurrentDictionary<string, ObjectActivator<T>> Activators { get; }
 
-        public static PropertyInfo[] PublicProperties { get; }
+        public static HashSet<PropertyInfo> PublicProperties { get; }
 
-        public static MethodInfo[] PublicMethods { get; }
+        public static Dictionary<string, PropertyInfo> PublicPropertiesMap { get; }
 
-        public static Attribute[] Attributes { get; }
+        public static HashSet<MethodInfo> PublicMethods { get; }
+
+        public static HashSet<Attribute> Attributes { get; }
 
         public static bool HasAttribute<TAttr>()
             where TAttr : Attribute
