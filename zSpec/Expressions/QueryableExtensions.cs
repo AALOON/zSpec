@@ -13,8 +13,8 @@ namespace zSpec.Expressions
             return queryable.Where(prop.Compose<Func<T, bool>>(where, Expression.AndAlso));
         }
 
-        public static IQueryable<TEntity> Filter<TEntity, TPredicate>(this IQueryable<TEntity> queryable,
-            AutoFilter<TEntity, TPredicate> filter)
+        public static IQueryable<TEntity> Filter<TEntity>(this IQueryable<TEntity> queryable,
+            IAutoFilter<TEntity> filter)
             where TEntity : class
         {
             return filter.Filter(queryable);
