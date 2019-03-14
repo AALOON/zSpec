@@ -80,10 +80,10 @@ namespace zSpec.Tests
         [Conditional("NotInMemory")]
         private void AddSqlContext(ServiceCollection services)
         {
-            var connectionString = Configuration.GetSection("ConnectionStrings:DefaultConnection");
+            var connectionString = Configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
             services.AddDbContext<TestContext>(options =>
             {
-                options.UseSqlite(connectionString.Value);
+                options.UseSqlServer(connectionString);
                 options.UseLoggerFactory(ContextLoggerFactory);
             }, ServiceLifetime.Transient);
         }

@@ -61,6 +61,13 @@ namespace zSpec.Automation
             return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new[] { query, expression });
         }
 
+        private class PredicateInfo
+        {
+            public PropertyInfo Property { get; set; }
+            public object Value { get; set; }
+            public string Key { get; set; }
+        }
+
         public static IQueryable<TSubject> Filter<TPredicate>(IQueryable<TSubject> query,
             TPredicate predicate,
             ComposeKind composeKind = ComposeKind.And)
@@ -70,24 +77,25 @@ namespace zSpec.Automation
             var modelType = typeof(TSubject);
 
             var parameter = Expression.Parameter(modelType);
+            var propByColumnMap = FastPropInfo<TPredicate>.PropertiesByColumnMap;
 
-            var props = FastTypeInfo<TSubject>
-                .PublicProperties
-                .Where(info => filterMap.ContainsKey(info.Name))
-                .Select(info => new
+            var props = FastTypeInfo<TSubject>.PublicProperties
+                .Where(info => propByColumnMap.ContainsKey(info.Name))
+                .SelectMany(info => propByColumnMap[info.Name]
+                    .Select(predicateProp => new PredicateInfo
+                    {
+                        Property = info,
+                        Value = filterMap[predicateProp.Name].GetValue(predicate),
+                        Key = GetAttributeKeyOrDefault<TPredicate>(predicateProp.Name)
+                    }).ToArray())
+                .Where(predicateInfo => predicateInfo.Value != null)
+                .Select(predicateInfo =>
                 {
-                    Property = info,
-                    Value = filterMap[info.Name].GetValue(predicate),
-                    Key = GetAttributeKeyOrDefault(filterMap[info.Name])
-                })
-                .Where(x => x.Value != null)
-                .Select(x =>
-                {
-                    var property = Expression.Property(parameter, x.Property);
-                    Expression value = Expression.Constant(x.Value);
+                    var property = Expression.Property(parameter, predicateInfo.Property);
+                    Expression value = Expression.Constant(predicateInfo.Value);
 
                     value = Expression.Convert(value, property.Type);
-                    var body = Conventions.Filters[new TypeKey(property.Type, x.Key)](property, value);
+                    var body = Conventions.Filters[new TypeKey(property.Type, predicateInfo.Key)](property, value);
 
                     return Expression.Lambda<Func<TSubject, bool>>(body, parameter);
                 })
@@ -105,12 +113,11 @@ namespace zSpec.Automation
             return query.Where(expr);
         }
 
-        private static string GetAttributeKeyOrDefault(PropertyInfo info)
+        private static string GetAttributeKeyOrDefault<TPredicate>(string name)
         {
-            
-            var attribute = info
-                .GetCustomAttributes(true)
+            var attribute = FastPropInfo<TPredicate>.Attributes[name]
                 .FirstOrDefault(p => ConventionalFilters.AttributeKeys.ContainsKey(p.GetType()));
+                
             if (attribute != null)
                 return ConventionalFilters.AttributeKeys[attribute.GetType()];
             return string.Empty;

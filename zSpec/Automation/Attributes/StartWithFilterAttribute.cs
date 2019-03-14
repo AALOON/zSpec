@@ -2,9 +2,12 @@
 
 namespace zSpec.Automation.Attributes
 {
+    /// <summary>
+    /// This attribute allows to mark property search by beginning of name
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class StartWithFilterAttribute : Attribute
     {
-        public static readonly string Key = "StartWith";
+        internal static readonly string Key = "StartWith";
     }
 }

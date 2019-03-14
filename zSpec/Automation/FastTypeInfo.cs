@@ -10,11 +10,11 @@ namespace zSpec.Automation
 {
     public delegate T ObjectActivator<out T>(params object[] args);
 
-    public static class FastTypeInfo<T>
+    public static class FastTypeInfo<TSubject>
     {
         static FastTypeInfo()
         {
-            var type = typeof(T);
+            var type = typeof(TSubject);
             Attributes = type.GetCustomAttributes().ToHashSet();
 
             PublicProperties = type
@@ -28,13 +28,13 @@ namespace zSpec.Automation
                 .Where(x => x.IsPublic && !x.IsAbstract)
                 .ToHashSet();
 
-            Constructors = typeof(T).GetConstructors();
-            Activators = new ConcurrentDictionary<string, ObjectActivator<T>>();
+            Constructors = typeof(TSubject).GetConstructors();
+            Activators = new ConcurrentDictionary<string, ObjectActivator<TSubject>>();
         }
 
         private static ConstructorInfo[] Constructors { get; }
 
-        private static ConcurrentDictionary<string, ObjectActivator<T>> Activators { get; }
+        private static ConcurrentDictionary<string, ObjectActivator<TSubject>> Activators { get; }
 
         public static HashSet<PropertyInfo> PublicProperties { get; }
 
@@ -54,7 +54,7 @@ namespace zSpec.Automation
 
         #region Create
 
-        public static T Create(params object[] args)
+        public static TSubject Create(params object[] args)
             => Activators.GetOrAdd(
                 GetSignature(args),
                 GetActivator(GetConstructorInfo(args)))
@@ -97,10 +97,10 @@ namespace zSpec.Automation
             var signature = GetSignature(args);
 
             throw new InvalidOperationException(
-                $"Constructor ({signature}) is not found for {typeof(T)}");
+                $"Constructor ({signature}) is not found for {typeof(TSubject)}");
         }
 
-        private static ObjectActivator<T> GetActivator(ConstructorInfo ctor)
+        private static ObjectActivator<TSubject> GetActivator(ConstructorInfo ctor)
         {
             var paramsInfo = ctor.GetParameters();
 
@@ -128,10 +128,10 @@ namespace zSpec.Automation
 
             // create a lambda with the New
             // Expression as body and our param object[] as arg
-            var lambda = Expression.Lambda(typeof(ObjectActivator<T>), newExp, param);
+            var lambda = Expression.Lambda(typeof(ObjectActivator<TSubject>), newExp, param);
 
             // compile it
-            var compiled = (ObjectActivator<T>)lambda.Compile();
+            var compiled = (ObjectActivator<TSubject>)lambda.Compile();
             return compiled;
         }
 

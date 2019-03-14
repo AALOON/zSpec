@@ -5,6 +5,11 @@ namespace zSpec.Tests.Context
 {
     public class User
     {
+        public User()
+        {
+            CreatedAt = DateTimeOffset.UtcNow;
+        }
+
         private const int MatureAge = 18;
 
         public long Id { get; set; }
@@ -14,6 +19,8 @@ namespace zSpec.Tests.Context
         public int Age { get; set; }
 
         public string Email { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
 
         public static Spec<User> IsMatureSpec => new Spec<User>(user => user.Age >= MatureAge);
 

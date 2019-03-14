@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +17,8 @@ namespace zSpec.Tests.Context
                 .Build();
             var builder = new DbContextOptionsBuilder<TestContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            builder.UseSqlite(connectionString);
+
+            builder.UseSqlServer(connectionString);
             return new TestContext(builder.Options);
         }
     }
