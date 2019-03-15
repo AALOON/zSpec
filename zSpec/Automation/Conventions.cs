@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -6,57 +7,52 @@ using zSpec.Expressions;
 
 namespace zSpec.Automation
 {
+    public enum SortOrder
+    {
+        Ascending = 0,
+        Descending = 1,
+        AscendingThenBy = 3,
+        DescendingThenBy = 4
+    }
+
     public static class Conventions
     {
+        internal static readonly IReadOnlyDictionary<SortOrder, MethodInfo> OrderMethods;
+        static Conventions()
+        {
+            var methods = typeof(Queryable).GetMethods();
+            OrderMethods = new Dictionary<SortOrder, MethodInfo>
+            {
+                [SortOrder.Ascending] = methods.First(x => x.Name == "OrderBy" && x.GetParameters().Length == 2),
+                [SortOrder.Descending] = methods.First(x => x.Name == "OrderByDescending" && x.GetParameters().Length == 2),
+                [SortOrder.AscendingThenBy] = methods.First(x => x.Name == "ThenBy" && x.GetParameters().Length == 2),
+                [SortOrder.DescendingThenBy] = methods.First(x => x.Name == "ThenByDescending" && x.GetParameters().Length == 2)
+            };
+        }
         public static ConventionalFilters Filters { get; } = new ConventionalFilters();
     }
 
     public static class Conventions<TSubject>
     {
-        public static IOrderedQueryable<TSubject> Sort(IQueryable<TSubject> query, string propertyName)
+        public static IOrderedQueryable<TSubject> Sort(IQueryable<TSubject> query, string propertyName, SortOrder order = SortOrder.Ascending)
         {
-            (string, bool) GetSorting()
-            {
-                var arr = propertyName.Split('.');
-                if (arr.Length == 1)
-                    return (arr[0], false);
-                var sort = arr[1];
-                if (string.Equals(sort, "ASC", StringComparison.CurrentCultureIgnoreCase))
-                    return (arr[0], false);
-                if (string.Equals(sort, "DESC", StringComparison.CurrentCultureIgnoreCase))
-                    return (arr[0], true);
-                return (arr[0], false);
-            }
-
-            var (name, isDesc) = GetSorting();
-            propertyName = name;
-
-            var property = FastTypeInfo<TSubject>
-                .PublicProperties
-                .FirstOrDefault(x => string.Equals(x.Name, propertyName, StringComparison.CurrentCultureIgnoreCase));
-
-            if (property == null)
+            if (!FastTypeInfo<TSubject>.PublicPropertiesMap.ContainsKey(propertyName))
                 throw new InvalidOperationException($"There is no public property \"{propertyName}\" " +
                     $"in type \"{typeof(TSubject)}\"");
+
+            var property = FastTypeInfo<TSubject>.PublicPropertiesMap[propertyName];
 
             var parameter = Expression.Parameter(typeof(TSubject));
             var body = Expression.Property(parameter, propertyName);
 
-            var lambda = FastTypeInfo<Expression>
-                .PublicMethods
-                .First(x => x.Name == "Lambda");
+            var lambda = FastTypeInfo<Expression>.PublicMethods.First(x => x.Name == "Lambda");
 
             lambda = lambda.MakeGenericMethod(typeof(Func<,>)
                 .MakeGenericType(typeof(TSubject), property.PropertyType));
 
             var expression = lambda.Invoke(null, new object[] { body, new[] { parameter } });
 
-            var methodName = isDesc ? "OrderByDescending" : "OrderBy";
-
-            var orderBy = typeof(Queryable)
-                .GetMethods()
-                .First(x => x.Name == methodName && x.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TSubject), property.PropertyType);
+            var orderBy = Conventions.OrderMethods[order].MakeGenericMethod(typeof(TSubject), property.PropertyType);
 
             return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new[] { query, expression });
         }

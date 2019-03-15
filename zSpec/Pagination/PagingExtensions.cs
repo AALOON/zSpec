@@ -14,10 +14,14 @@ namespace zSpec.Pagination
         /// </summary>
         public static IOrderedQueryable<T> Paginate<T>(this IQueryable<T> queryable, IPaging paging)
         {
-            var orderedQueryable = queryable as IOrderedQueryable<T>
-                                   ?? (string.IsNullOrWhiteSpace(paging.OrderBy)
-                                       ? queryable.OrderByFirstProperty()
-                                       : queryable.OrderBy(paging.OrderBy));
+            var orderedQueryable = queryable as IOrderedQueryable<T>;
+
+            if (orderedQueryable == null)
+            {
+                orderedQueryable = (string.IsNullOrWhiteSpace(paging.OrderBy)
+                    ? queryable.OrderByFirstProperty()
+                    : queryable.OrderBy(paging.OrderBy));
+            }
 
             return orderedQueryable.Paginate(paging);
         }
