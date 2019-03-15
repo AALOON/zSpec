@@ -50,7 +50,7 @@ namespace zSpec.Automation
             lambda = lambda.MakeGenericMethod(typeof(Func<,>)
                 .MakeGenericType(typeof(TSubject), property.PropertyType));
 
-            var expression = lambda.Invoke(null, new object[] { body, new[] { parameter } });
+            var expression = lambda.Invoke(obj: null, new object[] { body, new[] { parameter } });
 
             var orderBy = Conventions.OrderMethods[order].MakeGenericMethod(typeof(TSubject), property.PropertyType);
 

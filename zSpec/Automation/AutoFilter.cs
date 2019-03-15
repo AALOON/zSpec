@@ -2,6 +2,11 @@
 
 namespace zSpec.Automation
 {
+    /// <summary>
+    /// Auto filter allows to automaticaly map expressions of the filter model to entity
+    /// </summary>
+    /// <typeparam name="TEntity">Entity type</typeparam>
+    /// <typeparam name="TPredicate">Filter type</typeparam>
     public class AutoFilter<TEntity, TPredicate> : IAutoFilter<TEntity>
         where TEntity : class
     {
@@ -13,9 +18,18 @@ namespace zSpec.Automation
         }
 
         private IQueryable<TEntity> DoFilter(IQueryable<TEntity> queryable, TPredicate predicate)
-            => queryable.AutoFilter(predicate);
+        {
+            return queryable.AutoFilter(predicate);
+        }
 
+        /// <summary>
+        /// Applies expressions 
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <returns></returns>
         public IQueryable<TEntity> Filter(IQueryable<TEntity> queryable)
-            => DoFilter(queryable, _predicate);
+        {
+            return DoFilter(queryable, _predicate);
+        }
     }
 }

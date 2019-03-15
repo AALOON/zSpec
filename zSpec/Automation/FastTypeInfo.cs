@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using zSpec.Extensions;
+// ReSharper disable StaticMemberInGenericType
 
 namespace zSpec.Automation
 {
@@ -46,24 +47,32 @@ namespace zSpec.Automation
 
         public static bool HasAttribute<TAttr>()
             where TAttr : Attribute
-            => Attributes.Any(x => x.GetType() == typeof(TAttr));
+        {
+            return Attributes.Any(x => x.GetType() == typeof(TAttr));
+        }
 
         public static TAttr GetCustomAttribute<TAttr>()
             where TAttr : Attribute
-            => (TAttr)Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
+        {
+            return (TAttr) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
+        }
 
         #region Create
 
         public static TSubject Create(params object[] args)
-            => Activators.GetOrAdd(
-                GetSignature(args),
-                GetActivator(GetConstructorInfo(args)))
-                    .Invoke(args);
+        {
+            return Activators.GetOrAdd(
+                    GetSignature(args),
+                    GetActivator(GetConstructorInfo(args)))
+                .Invoke(args);
+        }
 
         private static string GetSignature(object[] args)
-            => args
+        {
+            return args
                 .Select(x => x.GetType().ToString())
                 .Join(",");
+        }
 
         private static ConstructorInfo GetConstructorInfo(object[] args)
         {
@@ -156,7 +165,8 @@ namespace zSpec.Automation
                 .Select(p => Expression.Parameter(p.ParameterType, p.Name))
                 .ToArray();
 
-            var call = Expression.Call(null, method, parameters);
+            // ReSharper disable once CoVariantArrayConversion
+            var call = Expression.Call(instance: null, method, parameters);
             return Expression.Lambda(call, parameters).Compile();
         }
 

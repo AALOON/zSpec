@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace zSpec.Extensions
 {
     ///<summary>
-    /// String class extensions
+    /// String helpful extensions
     ///</summary>
     public static class StringExtensions
     {
@@ -16,11 +16,18 @@ namespace zSpec.Extensions
             return !string.IsNullOrEmpty(value);
         }
 
+        /// <summary>
+        /// Join the enumerable with separator
+        /// aka string.Join(separator, source)
+        /// </summary>
         public static string Join(this IEnumerable<string> source, string separator)
         {
             return string.Join(separator, source);
         }
 
+        /// <summary>
+        /// Checks if string contains substring
+        /// </summary>
         public static bool Contains(this string input, string value, StringComparison comparisonType)
         {
             if (!string.IsNullOrEmpty(input))
@@ -31,6 +38,9 @@ namespace zSpec.Extensions
             return false;
         }
 
+        /// <summary>
+        /// Checks if string contains substring
+        /// </summary>
         public static bool LikewiseContains(this string input, string value)
         {
             return Contains(input, value, StringComparison.CurrentCulture);

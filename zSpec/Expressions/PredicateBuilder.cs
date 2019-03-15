@@ -10,33 +10,43 @@ namespace zSpec.Expressions
         /// Creates a predicate that evaluates to true.
         /// </summary>
         public static Expression<Func<T, bool>> True<T>()
-            => param => true;
+        {
+            return param => true;
+        }
 
         /// <summary>
         /// Creates a predicate that evaluates to false.
         /// </summary>
         public static Expression<Func<T, bool>> False<T>()
-            => param => false;
+        {
+            return param => false;
+        }
 
         /// <summary>
         /// Creates a predicate expression from the specified lambda expression.
         /// </summary>
         public static Expression<Func<T, bool>> Create<T>(Expression<Func<T, bool>> predicate)
-            => predicate;
+        {
+            return predicate;
+        }
 
         /// <summary>
         /// Combines the first predicate with the second using the logical "and".
         /// </summary>
         public static Expression<Func<T, bool>> And<T>(
             this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)
-            => first.Compose<Func<T, bool>>(second, Expression.AndAlso);
+        {
+            return first.Compose<Func<T, bool>>(second, Expression.AndAlso);
+        }
 
         /// <summary>
         /// Combines the first predicate with the second using the logical "or".
         /// </summary>
         public static Expression<Func<T, bool>> Or<T>(
             this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)
-            => first.Compose<Func<T, bool>>(second, Expression.OrElse);
+        {
+            return first.Compose<Func<T, bool>>(second, Expression.OrElse);
+        }
 
         /// <summary>
         /// Negates the predicate.

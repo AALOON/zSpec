@@ -10,6 +10,8 @@ namespace zSpec.Expressions
             = new ConcurrentDictionary<Expression<Func<TIn, TOut>>, Func<TIn, TOut>>();
 
         internal static Func<TIn, TOut> AsFunc(Expression<Func<TIn, TOut>> expr)
-            => Cache.GetOrAdd(expr, k => k.Compile());
+        {
+            return Cache.GetOrAdd(expr, k => k.Compile());
+        }
     }
 }

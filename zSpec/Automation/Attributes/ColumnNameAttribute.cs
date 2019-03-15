@@ -13,6 +13,9 @@ namespace zSpec.Automation.Attributes
             Name = name;
         }
 
+        /// <summary>
+        /// Name of the column
+        /// </summary>
         public string Name { get; }
     }
 }

@@ -17,8 +17,8 @@ namespace zSpec.Automation
         private static readonly Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>> Filters
             = new Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>>
             {
-                { new TypeKey(typeof(string), StartWithFilterAttribute.Key),  (p, v) => Expression.Call(p, StartsWithMethod, v) },
-                { new TypeKey(typeof(string), ContainsFilterAttribute.Key),  (p, v) => Expression.Call(p, ContainsMethod, v) },
+                { new TypeKey(typeof(string), StartWithFilterAttribute.Key),(p, v) => Expression.Call(p, StartsWithMethod, v) },
+                { new TypeKey(typeof(string), ContainsFilterAttribute.Key),(p, v) => Expression.Call(p, ContainsMethod, v) },
                 { new TypeKey(typeof(string), string.Empty),  Expression.Equal },
                 { new TypeKey(typeof(DateTime), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
                 { new TypeKey(typeof(DateTime), ToFilterAttribute.Key),  Expression.LessThanOrEqual },

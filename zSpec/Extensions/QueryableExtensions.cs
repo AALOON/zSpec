@@ -12,24 +12,48 @@ namespace zSpec.Extensions
         /// Orders by first property if there are any.
         /// </summary>
         public static IOrderedQueryable<T> OrderByFirstProperty<T>(this IQueryable<T> queryable)
-            => Conventions<T>.Sort(queryable, FastTypeInfo<T>.PublicProperties.First().Name);
+        {
+            return Conventions<T>.Sort(queryable, FastTypeInfo<T>.PublicProperties.First().Name);
+        }
 
         /// <summary>
         /// Orders by Descending first property if there are any.
         /// </summary>
         public static IOrderedQueryable<T> OrderByDescendingFirstProperty<T>(this IQueryable<T> queryable)
-            => Conventions<T>.Sort(queryable, FastTypeInfo<T>.PublicProperties.First().Name, SortOrder.Descending);
+        {
+            return Conventions<T>.Sort(queryable, FastTypeInfo<T>.PublicProperties.First().Name, SortOrder.Descending);
+        }
 
         /// <summary>
         /// Orders by property name.
         /// </summary>
         public static IOrderedQueryable<TSubject> OrderBy<TSubject>(this IQueryable<TSubject> query, string propertyName)
-            => Conventions<TSubject>.Sort(query, propertyName);
+        {
+            return Conventions<TSubject>.Sort(query, propertyName);
+        }
 
         /// <summary>
         /// Orders by Descending property name.
         /// </summary>
         public static IOrderedQueryable<TSubject> OrderByDescending<TSubject>(this IQueryable<TSubject> query, string propertyName)
-            => Conventions<TSubject>.Sort(query, propertyName, SortOrder.Descending);
+        {
+            return Conventions<TSubject>.Sort(query, propertyName, SortOrder.Descending);
+        }
+
+        /// <summary>
+        /// Orders then by property name.
+        /// </summary>
+        public static IOrderedQueryable<TSubject> ThenBy<TSubject>(this IQueryable<TSubject> query, string propertyName)
+        {
+            return Conventions<TSubject>.Sort(query, propertyName, SortOrder.AscendingThenBy);
+        }
+
+        /// <summary>
+        /// Orders then Descending property name.
+        /// </summary>
+        public static IOrderedQueryable<TSubject> ThenByDescending<TSubject>(this IQueryable<TSubject> query, string propertyName)
+        {
+            return Conventions<TSubject>.Sort(query, propertyName, SortOrder.DescendingThenBy);
+        }
     }
 }
