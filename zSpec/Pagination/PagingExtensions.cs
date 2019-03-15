@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using zSpec.Extensions;
 
 namespace zSpec.Pagination
 {
     /// <summary>
-    /// Paging extenensions
+    /// Paging extensions
     /// </summary>
     public static class PagingExtensions
     {
@@ -26,8 +27,10 @@ namespace zSpec.Pagination
         /// </summary>
         public static IOrderedQueryable<T> Paginate<T>(this IOrderedQueryable<T> queryable, IPaging paging)
         {
+            var page = Math.Max(paging.Page, 0);
+
             return (IOrderedQueryable<T>)queryable
-                .Skip((paging.Page - 1) * paging.Take)
+                .Skip(page * paging.Take)
                 .Take(paging.Take);
         }
     }
