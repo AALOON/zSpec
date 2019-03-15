@@ -8,7 +8,6 @@ namespace zSpec.Tests.Context
     /// </summary>
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.Property(agent => agent.Name).IsRequired();

@@ -1,44 +1,93 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
+using NUnit.Framework;
 using zSpec.Pagination;
 using zSpec.Tests.Context;
+using zSpec.Tests.Pagings;
 
 namespace zSpec.Tests
 {
+    [TestFixture]
     public class PagingTests : TestBase
     {
-        public PagingTests(ITestOutputHelper output)
-            : base(output)
+        [Test]
+        public void TestPaginateSimple()
         {
-            Seed();
-        }
-
-
-        [Fact]
-        public void Test1()
-        {
-            var paging = new Paging { Take = 2 , OrderBy = nameof(User.Name)};
+            var paging = new Paging { Take = 2, OrderBy = nameof(User.Name) };
             var list = DbContext.Users.Paginate(paging).ToList();
-            list.Should().HaveCount(2);
+            list.Should().HaveCount(expected: 2);
         }
 
-        private void Seed()
+        [Test]
+        public void TestPaginateInsertOrder()
         {
-            var sw = new Stopwatch();
-            sw.Start();
-            var context = DbContext;
-            context.Users.Add(new User { Age = 10, Name = "Alpha", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1) });
-            context.Users.Add(new User { Age = 18, Name = "Beta", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1) });
-            context.Users.Add(new User { Age = 18, Name = "Gamma", Email = "gamma@gmail.com" });
-            context.Users.Add(new User { Age = 6, Name = "Delta", Email = "delta@gmail.com" });
-            context.SaveChanges();
-            sw.Stop();
-            Logger.LogInformation($"Seed Elapsed:{sw.Elapsed.ToString()}");
+            var paging = new Paging { Take = 2, OrderBy = nameof(User.Name) };
+            var list = DbContext.Users.OrderBy(p => p.Age).Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateOrderFirstColumn()
+        {
+            var paging = new Paging { Take = 2 };
+            var list = DbContext.Users.Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateInsertOrderFirstColumn()
+        {
+            var paging = new Paging { Take = 2 };
+            var list = DbContext.Users.OrderBy(p => p.Age).Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateOrderFirstColumnWithSkip()
+        {
+            var paging = new Paging2 { Take = 2 };
+            var list = DbContext.Users.Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateSkipOrder()
+        {
+            var paging = new Paging2 { Take = 2 };
+            var list = DbContext.Users.OrderBy(p => p.Age).Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateOrderByDefaultAge()
+        {
+            var paging = new Paging3 { Take = 2 };
+            var list = DbContext.Users.Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateInsertDefaultAge()
+        {
+            var paging = new Paging3 { Take = 2 };
+            var list = DbContext.Users.OrderBy(p => p.Name).Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateThenByNotUsesInstedOrderBy()
+        {
+            var paging = new Paging4 { Take = 2, OrderBy = nameof(User.Age) };
+            var list = DbContext.Users.Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
+
+        [Test]
+        public void TestPaginateInserThenBy()
+        {
+            var paging = new Paging4 { Take = 2, OrderBy = nameof(User.Age) };
+            var list = DbContext.Users.OrderBy(p => p.Name).Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
         }
     }
 }

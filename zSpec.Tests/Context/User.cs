@@ -24,20 +24,36 @@ namespace zSpec.Tests.Context
 
         public static Spec<User> IsMatureSpec => new Spec<User>(user => user.Age >= MatureAge);
 
-        public bool IsMature() => IsMatureSpec.IsSatisfiedBy(this);
-        
+        public bool IsMature()
+        {
+            return IsMatureSpec.IsSatisfiedBy(this);
+        }
+
         public static Spec<User> IsHaveEmailSpec => new Spec<User>(user => user.Email != null);
 
-        public bool IsHaveEmail() => IsHaveEmailSpec.IsSatisfiedBy(this);
+        public bool IsHaveEmail()
+        {
+            return IsHaveEmailSpec.IsSatisfiedBy(this);
+        }
 
         public static Spec<User> IsHasNameEqualsSpec(string name)
-            => new Spec<User>(user => user.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        {
+            return new Spec<User>(user => user.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-        public bool IsHasNameEqualsEquals(string name) => IsHasNameEqualsSpec(name).IsSatisfiedBy(this);
+        public bool IsHasNameEqualsEquals(string name)
+        {
+            return IsHasNameEqualsSpec(name).IsSatisfiedBy(this);
+        }
 
         public static Spec<User> IsHasNameSpec(string name)
-            => new Spec<User>(user => user.Name == name);
+        {
+            return new Spec<User>(user => user.Name == name);
+        }
 
-        public bool IsHasName(string name) => IsHasNameSpec(name).IsSatisfiedByNonCache(this);
+        public bool IsHasName(string name)
+        {
+            return IsHasNameSpec(name).IsSatisfiedByNonCache(this);
+        }
     }
 }
