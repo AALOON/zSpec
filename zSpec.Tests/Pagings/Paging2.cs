@@ -13,6 +13,6 @@ namespace zSpec.Tests.Pagings
 
         /// <inheritdoc />
         [SkipOrderIfEmpty]
-        public string OrderBy { get; set; }
+        public OrderByColumn OrderBy { get; set; }
     }
 }

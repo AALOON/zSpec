@@ -25,6 +25,6 @@ namespace zSpec.Pagination
         /// <see cref="OrderAttribute"/>,
         /// <see cref="SkipOrderIfEmptyAttribute"/>
         /// </summary>
-        string OrderBy { get; }
+        OrderByColumn OrderBy { get; }
     }
 }

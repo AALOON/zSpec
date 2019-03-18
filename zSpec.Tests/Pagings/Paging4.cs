@@ -14,7 +14,7 @@ namespace zSpec.Tests.Pagings
         public int Take { get; set; } = 2;
 
         /// <inheritdoc />
-        [Order(SortOrder.AscendingThenBy)]
-        public string OrderBy { get; set; }
+        [DefaultSortBy(nameof(User.Id), SortOrder.AscendingThenBy)]
+        public OrderByColumn OrderBy { get; set; }
     }
 }

@@ -11,6 +11,6 @@ namespace zSpec.Tests.Pagings
         public int Take { get; set; } = 2;
 
         /// <inheritdoc />
-        public string OrderBy { get; set; }
+        public OrderByColumn OrderBy { get; set; }
     }
 }

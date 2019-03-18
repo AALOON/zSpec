@@ -7,14 +7,17 @@ namespace zSpec.Automation.Attributes
     /// </summary>
     public class DefaultSortByAttribute : Attribute
     {
-        public DefaultSortByAttribute(string columnName)
+        public DefaultSortByAttribute(string columnName, SortOrder order = SortOrder.Ascending)
         {
             ColumnName = columnName;
+            SortOrder = order;
         }
 
         /// <summary>
         /// Column name
         /// </summary>
         public string ColumnName { get; }
+
+        public SortOrder SortOrder { get; }
     }
 }

@@ -75,7 +75,7 @@ namespace zSpec.Tests
         }
 
         [Test]
-        public void TestPaginateThenByNotUsesInstedOrderBy()
+        public void TestPaginateThenByNotUsesInsteadOrderBy()
         {
             var paging = new Paging4 { Take = 2, OrderBy = nameof(User.Age) };
             var list = DbContext.Users.Paginate(paging).ToList();

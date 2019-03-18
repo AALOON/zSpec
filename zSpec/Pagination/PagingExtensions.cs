@@ -19,7 +19,7 @@ namespace zSpec.Pagination
             if (queryable is IOrderedQueryable<TElement> orderedQueryable)
                 return orderedQueryable.Paginate(paging);
 
-            var oderby = GetOrderColumnName<TElement, TPaging>(paging);
+            var oderBy = GetOrderColumnName<TElement, TPaging>(paging);
 
             var order = GetOrder(paging);
 
@@ -29,7 +29,7 @@ namespace zSpec.Pagination
             else if (order == SortOrder.DescendingThenBy)
                 order = SortOrder.Descending;
 
-            return Conventions<TElement>.Sort(queryable, oderby, order)
+            return Conventions<TElement>.Sort(queryable, oderBy, order)
                 .PaginateInternal(paging);
         }
 
@@ -39,15 +39,15 @@ namespace zSpec.Pagination
         public static IOrderedQueryable<TElement> Paginate<TElement, TPaging>(this IOrderedQueryable<TElement> orderedQueryable,
             TPaging paging) where TPaging : IPaging
         {
-            if (string.IsNullOrWhiteSpace(paging.OrderBy))
+            if (paging == null || paging.OrderBy == null || string.IsNullOrWhiteSpace(paging.OrderBy.Column))
             {
                 var skipAttribute = FastPropInfo<TPaging>.FindAttribute<SkipOrderIfEmptyAttribute>(nameof(paging.OrderBy));
                 if (skipAttribute != null)
                     return orderedQueryable.PaginateInternal(paging);
             }
-            var oderby = GetOrderColumnName<TElement, TPaging>(paging);
+            var oderBy = GetOrderColumnName<TElement, TPaging>(paging);
 
-            orderedQueryable = Conventions<TElement>.Sort(orderedQueryable, oderby, GetOrder(paging));
+            orderedQueryable = Conventions<TElement>.Sort(orderedQueryable, oderBy, GetOrder(paging));
 
             return orderedQueryable.PaginateInternal(paging);
         }
@@ -66,8 +66,8 @@ namespace zSpec.Pagination
         private static string GetOrderColumnName<TElement, TPaging>(TPaging paging)
             where TPaging : IPaging
         {
-            if (!string.IsNullOrWhiteSpace(paging.OrderBy))
-                return paging.OrderBy;
+            if (paging != null && paging.OrderBy != null && !string.IsNullOrWhiteSpace(paging.OrderBy.Column))
+                return paging.OrderBy.Column;
 
             var defaultColumnAttribute = FastPropInfo<TPaging>.FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
             if (defaultColumnAttribute == null)
@@ -78,10 +78,14 @@ namespace zSpec.Pagination
         private static SortOrder GetOrder<TPaging>(TPaging paging)
             where TPaging : IPaging
         {
-            var orderAttribute = FastPropInfo<TPaging>.FindAttribute<OrderAttribute>(nameof(paging.OrderBy));
-            if (orderAttribute == null)
+            if (paging != null && paging.OrderBy?.Order != null)
+            {
+                return paging.OrderBy.Order.Value;
+            }
+            var defaultOrderAttribute = FastPropInfo<TPaging>.FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
+            if (defaultOrderAttribute == null)
                 return SortOrder.Ascending;
-            return orderAttribute.SortOrder;
+            return defaultOrderAttribute.SortOrder;
         }
     }
 }

@@ -14,6 +14,6 @@ namespace zSpec.Tests.Pagings
 
         /// <inheritdoc />
         [DefaultSortBy(nameof(User.Age))]
-        public string OrderBy { get; set; }
+        public OrderByColumn OrderBy { get; set; }
     }
 }
