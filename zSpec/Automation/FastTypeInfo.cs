@@ -9,13 +9,90 @@ using zSpec.Extensions;
 
 namespace zSpec.Automation
 {
-    public delegate T ObjectActivator<out T>(params object[] args);
-
+    /// <summary>
+    /// Provides information about generic type
+    /// </summary>
+    /// <typeparam name="TSubject">Type</typeparam>
     public static class FastTypeInfo<TSubject>
     {
+        private static readonly FastTypeInfo TypeInfo;
+
         static FastTypeInfo()
         {
             var type = typeof(TSubject);
+
+            TypeInfo = FastTypeInfo.GetInstance(type);
+        }
+
+        public static HashSet<PropertyInfo> PublicProperties => TypeInfo.PublicProperties;
+
+        public static Dictionary<string, PropertyInfo> PublicPropertiesMap => TypeInfo.PublicPropertiesMap;
+
+        public static HashSet<MethodInfo> PublicMethods => TypeInfo.PublicMethods;
+
+        public static HashSet<Attribute> Attributes => TypeInfo.Attributes;
+
+        public static bool HasAttribute<TAttr>()
+            where TAttr : Attribute
+        {
+            return Attributes.Any(x => x.GetType() == typeof(TAttr));
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
+        {
+            return (TAttribute) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttribute));
+        }
+
+        public static TSubject Create(params object[] args)
+        {
+            return TypeInfo.Create<TSubject>(args);
+        }
+
+        public static Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
+        {
+            var paramExpression = Expression.Parameter(typeof(TObject), "value");
+
+            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
+
+            var result = Expression.Lambda<Func<TObject, TProperty>>(propertyGetterExpression, paramExpression)
+                .Compile();
+
+            return result;
+        }
+
+        public static Action<TObject, TProperty> PropertySetter<TObject, TProperty>(string propertyName)
+        {
+            var paramExpression = Expression.Parameter(typeof(TObject));
+            var paramExpression2 = Expression.Parameter(typeof(TProperty), propertyName);
+            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
+            var result = Expression.Lambda<Action<TObject, TProperty>>
+            (
+                Expression.Assign(propertyGetterExpression, paramExpression2), paramExpression, paramExpression2
+            ).Compile();
+
+            return result;
+        }
+    }
+
+    internal delegate T ObjectActivator<out T>(params object[] args);
+    internal delegate object ObjectActivator(params object[] args);
+
+    /// <summary>
+    /// Provides information about type
+    /// </summary>
+    public class FastTypeInfo
+    {
+        private static readonly ConcurrentDictionary<Type, FastTypeInfo> Cahce
+            = new ConcurrentDictionary<Type, FastTypeInfo>();
+
+        private readonly Type _type;
+        private readonly ConcurrentDictionary<string, ObjectActivator> _activators;
+        private readonly ConstructorInfo[] _constructors;
+
+        public FastTypeInfo(Type type)
+        {
+            _type = type;
+
             Attributes = type.GetCustomAttributes().ToHashSet();
 
             PublicProperties = type
@@ -29,73 +106,99 @@ namespace zSpec.Automation
                 .Where(x => x.IsPublic && !x.IsAbstract)
                 .ToHashSet();
 
-            Constructors = typeof(TSubject).GetConstructors();
-            Activators = new ConcurrentDictionary<string, ObjectActivator<TSubject>>();
+            _constructors = type.GetConstructors();
+            _activators = new ConcurrentDictionary<string, ObjectActivator>();
         }
 
-        private static ConstructorInfo[] Constructors { get; }
+        public HashSet<PropertyInfo> PublicProperties { get; }
 
-        private static ConcurrentDictionary<string, ObjectActivator<TSubject>> Activators { get; }
+        public Dictionary<string, PropertyInfo> PublicPropertiesMap { get; }
 
-        public static HashSet<PropertyInfo> PublicProperties { get; }
+        public HashSet<MethodInfo> PublicMethods { get; }
 
-        public static Dictionary<string, PropertyInfo> PublicPropertiesMap { get; }
+        public HashSet<Attribute> Attributes { get; }
 
-        public static HashSet<MethodInfo> PublicMethods { get; }
-
-        public static HashSet<Attribute> Attributes { get; }
-
-        public static bool HasAttribute<TAttr>()
+        public bool HasAttribute<TAttr>()
             where TAttr : Attribute
         {
             return Attributes.Any(x => x.GetType() == typeof(TAttr));
         }
 
-        public static TAttr GetCustomAttribute<TAttr>()
+        public TAttr GetCustomAttribute<TAttr>()
             where TAttr : Attribute
         {
-            return (TAttr) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
+            return (TAttr)Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
         }
 
-        #region Create
-
-        public static TSubject Create(params object[] args)
+        public Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
         {
-            return Activators.GetOrAdd(
+            var paramExpression = Expression.Parameter(typeof(TObject), "value");
+
+            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
+
+            var result = Expression.Lambda<Func<TObject, TProperty>>(propertyGetterExpression,
+                    paramExpression).Compile();
+
+            return result;
+        }
+
+        public Action<TObject, TProperty> PropertySetter<TObject, TProperty>(string propertyName)
+        {
+            var paramExpression = Expression.Parameter(typeof(TObject));
+            var paramExpression2 = Expression.Parameter(typeof(TProperty), propertyName);
+            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
+            var result = Expression.Lambda<Action<TObject, TProperty>>(Expression
+                .Assign(propertyGetterExpression, paramExpression2), paramExpression, paramExpression2).Compile();
+
+            return result;
+        }
+
+        public static FastTypeInfo GetInstance(Type type)
+        {
+            return Cahce.GetOrAdd(type, new FastTypeInfo(type));
+        }
+
+        public TSubject Create<TSubject>(params object[] args)
+        {
+            if (typeof(TSubject) != _type)
+            {
+                throw new InvalidOperationException($"It's wrong TSubject parameter expected: [{_type}]");
+            }
+
+            return (TSubject)_activators.GetOrAdd(
                     GetSignature(args),
                     GetActivator(GetConstructorInfo(args)))
                 .Invoke(args);
         }
 
+        #region Create private
         private static string GetSignature(object[] args)
         {
-            return args
-                .Select(x => x.GetType().ToString())
-                .Join(",");
+            return args.Select(x => x.GetType().ToString()).Join(",");
         }
 
-        private static ConstructorInfo GetConstructorInfo(object[] args)
+        private ConstructorInfo GetConstructorInfo(object[] args)
         {
-            for (var i = 0; i < Constructors.Length; i++)
+            for (var i = 0; i < _constructors.Length; i++)
             {
-                var consturctor = Constructors[i];
+                var consturctor = _constructors[i];
                 var ctrParams = consturctor.GetParameters();
                 if (ctrParams.Length != args.Length)
                 {
                     continue;
                 }
 
-                var flag = true;
+                var isWrongParametrType = true;
                 for (var j = 0; j < args.Length; i++)
                 {
                     if (ctrParams[j].ParameterType != args[j].GetType())
                     {
-                        flag = false;
+                        isWrongParametrType = false;
                         break;
                     }
                 }
 
-                if (!flag)
+                if (!isWrongParametrType)
                 {
                     continue;
                 }
@@ -106,10 +209,10 @@ namespace zSpec.Automation
             var signature = GetSignature(args);
 
             throw new InvalidOperationException(
-                $"Constructor ({signature}) is not found for {typeof(TSubject)}");
+                $"Constructor ({signature}) is not found for {_type}");
         }
 
-        private static ObjectActivator<TSubject> GetActivator(ConstructorInfo ctor)
+        private static ObjectActivator GetActivator(ConstructorInfo ctor)
         {
             var paramsInfo = ctor.GetParameters();
 
@@ -137,64 +240,12 @@ namespace zSpec.Automation
 
             // create a lambda with the New
             // Expression as body and our param object[] as arg
-            var lambda = Expression.Lambda(typeof(ObjectActivator<TSubject>), newExp, param);
+            var lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
 
             // compile it
-            var compiled = (ObjectActivator<TSubject>)lambda.Compile();
+            var compiled = (ObjectActivator)lambda.Compile();
             return compiled;
         }
-
-        public static Delegate CreateMethod(MethodInfo method)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            if (!method.IsStatic)
-            {
-                throw new ArgumentException("The provided method must be static.", nameof(method));
-            }
-
-            if (method.IsGenericMethod)
-            {
-                throw new ArgumentException("The provided method must not be generic.", nameof(method));
-            }
-
-            var parameters = method.GetParameters()
-                .Select(p => Expression.Parameter(p.ParameterType, p.Name))
-                .ToArray();
-
-            // ReSharper disable once CoVariantArrayConversion
-            var call = Expression.Call(instance: null, method, parameters);
-            return Expression.Lambda(call, parameters).Compile();
-        }
-
         #endregion
-
-        public static Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
-        {
-            var paramExpression = Expression.Parameter(typeof(TObject), "value");
-
-            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
-
-            var result = Expression.Lambda<Func<TObject, TProperty>>(propertyGetterExpression, paramExpression)
-                .Compile();
-
-            return result;
-        }
-
-        public static Action<TObject, TProperty> PropertySetter<TObject, TProperty>(string propertyName)
-        {
-            var paramExpression = Expression.Parameter(typeof(TObject));
-            var paramExpression2 = Expression.Parameter(typeof(TProperty), propertyName);
-            var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
-            var result = Expression.Lambda<Action<TObject, TProperty>>
-            (
-                Expression.Assign(propertyGetterExpression, paramExpression2), paramExpression, paramExpression2
-            ).Compile();
-
-            return result;
-        }
     }
 }

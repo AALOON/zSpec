@@ -50,7 +50,7 @@ namespace zSpec.Tests
 
         protected Context.TestContext DbContext => TestFixture.Container.Resolve<Context.TestContext>();
 
-        protected TestBaseFixture TestFixture { get; private set; }
+        protected TestBaseFixture TestFixture { get; set; }
 
         protected ILogger Logger => TestFixture.Container.Resolve<ILogger>();
     }

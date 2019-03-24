@@ -3,7 +3,7 @@
 namespace zSpec.Automation
 {
     /// <summary>
-    /// Auto filter allows to automaticaly map expressions of the filter model to entity
+    /// Auto filter allows to automatically map expressions of the filter model to entity
     /// </summary>
     /// <typeparam name="TEntity">Entity type</typeparam>
     /// <typeparam name="TPredicate">Filter type</typeparam>
