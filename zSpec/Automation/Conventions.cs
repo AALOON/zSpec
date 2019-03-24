@@ -57,13 +57,6 @@ namespace zSpec.Automation
             return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new[] { query, expression });
         }
 
-        private class PredicateInfo
-        {
-            public PropertyInfo Property { get; set; }
-            public object Value { get; set; }
-            public string Key { get; set; }
-        }
-
         public static IQueryable<TSubject> Filter<TPredicate>(IQueryable<TSubject> query,
             TPredicate predicate,
             ComposeKind composeKind = ComposeKind.And)
@@ -117,6 +110,14 @@ namespace zSpec.Automation
             if (attribute != null)
                 return ConventionalFilters.AttributeKeys[attribute.GetType()];
             return string.Empty;
+        }
+
+
+        private class PredicateInfo
+        {
+            public PropertyInfo Property { get; set; }
+            public object Value { get; set; }
+            public string Key { get; set; }
         }
     }
 }

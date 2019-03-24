@@ -89,5 +89,14 @@ namespace zSpec.Tests
             var list = DbContext.Users.OrderBy(p => p.Name).Paginate(paging).ToList();
             list.Should().HaveCount(expected: 2);
         }
+
+
+        [Test]
+        public void TestPaginateByInterface()
+        {
+            IPaging paging = new Paging3 { Take = 2 };
+            var list = DbContext.Users.Paginate(paging).ToList();
+            list.Should().HaveCount(expected: 2);
+        }
     }
 }

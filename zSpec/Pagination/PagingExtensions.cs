@@ -41,7 +41,7 @@ namespace zSpec.Pagination
         {
             if (paging == null || paging.OrderBy == null || string.IsNullOrWhiteSpace(paging.OrderBy.Column))
             {
-                var skipAttribute = FastPropInfo<TPaging>.FindAttribute<SkipOrderIfEmptyAttribute>(nameof(paging.OrderBy));
+                var skipAttribute = GetPropInfo(paging).FindAttribute<SkipOrderIfEmptyAttribute>(nameof(paging.OrderBy));
                 if (skipAttribute != null)
                     return orderedQueryable.PaginateInternal(paging);
             }
@@ -69,7 +69,8 @@ namespace zSpec.Pagination
             if (paging != null && paging.OrderBy != null && !string.IsNullOrWhiteSpace(paging.OrderBy.Column))
                 return paging.OrderBy.Column;
 
-            var defaultColumnAttribute = FastPropInfo<TPaging>.FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
+            var defaultColumnAttribute = GetPropInfo(paging)
+                .FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
             if (defaultColumnAttribute == null)
                 return FastTypeInfo<TElement>.PublicProperties.First().Name;
             return defaultColumnAttribute.ColumnName;
@@ -82,10 +83,18 @@ namespace zSpec.Pagination
             {
                 return paging.OrderBy.Order.Value;
             }
-            var defaultOrderAttribute = FastPropInfo<TPaging>.FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
+            var defaultOrderAttribute = GetPropInfo(paging)
+                .FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
             if (defaultOrderAttribute == null)
                 return SortOrder.Ascending;
             return defaultOrderAttribute.SortOrder;
+        }
+
+        public static FastPropInfo GetPropInfo<TPaging>(TPaging paging)
+        {
+            if (paging == null)
+                return FastPropInfo.GetInstance(typeof(TPaging));
+            return FastPropInfo.GetInstance(paging.GetType());
         }
     }
 }

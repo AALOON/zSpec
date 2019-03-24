@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,33 +8,62 @@ using zSpec.Automation.Attributes;
 
 namespace zSpec.Automation
 {
-    public class FastPropInfo<TSubject>
+    public static class FastPropInfo<TSubject>
     {
+        private static readonly FastPropInfo PropInfo;
+
         static FastPropInfo()
         {
-            Attributes = FastTypeInfo<TSubject>.PublicProperties
-                .ToDictionary(p => p.Name, p => p.GetCustomAttributes(inherit: true));
-
-            PropertiesByColumnMap = FastTypeInfo<TSubject>.PublicProperties
-                .GroupBy(p => GetName(p.Name))
-                .ToDictionary(p => p.Key, p => p.ToArray());
+            PropInfo = FastPropInfo.GetInstance(typeof(TSubject));
         }
 
-        public static Dictionary<string, object[]> Attributes { get; }
+        public static Dictionary<string, object[]> Attributes => PropInfo.Attributes;
 
-        public static Dictionary<string, PropertyInfo[]> PropertiesByColumnMap { get; }
+        public static Dictionary<string, PropertyInfo[]> PropertiesByColumnMap => PropInfo.PropertiesByColumnMap;
 
         public static TAttribute FindAttribute<TAttribute>(string propName)
+            where TAttribute : Attribute
+        {
+            return PropInfo.FindAttribute<TAttribute>(propName);
+        }
+    }
+
+    public class FastPropInfo
+    {
+        private static readonly ConcurrentDictionary<Type, FastPropInfo> Cahce
+            = new ConcurrentDictionary<Type, FastPropInfo>();
+
+        public FastPropInfo(Type type)
+        {
+            var typeInfo = FastTypeInfo.GetInstance(type);
+            Attributes = typeInfo.PublicProperties
+                .ToDictionary(p => p.Name, p => p.GetCustomAttributes(inherit: true));
+
+            PropertiesByColumnMap = typeInfo.PublicProperties
+                .GroupBy(p => GetName(p.Name))
+                .ToDictionary(p => p.Key, p => p.ToArray());
+
+        }
+        public Dictionary<string, object[]> Attributes { get; }
+
+        public Dictionary<string, PropertyInfo[]> PropertiesByColumnMap { get; }
+
+        public TAttribute FindAttribute<TAttribute>(string propName)
             where TAttribute : Attribute
         {
             return (TAttribute)Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(TAttribute));
         }
 
+        public static FastPropInfo GetInstance(Type type)
+        {
+            return Cahce.GetOrAdd(type, new FastPropInfo(type));
+        }
+
         /// <summary>
         /// Returns column name of attributes exists in property or default propName
         /// </summary>
-        private static string GetName(string propName)
+        private string GetName(string propName)
         {
             var attribute = Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(ColumnNameAttribute));
