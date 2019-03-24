@@ -5,7 +5,7 @@
     <Authors>Albert Zabirov</Authors>
     <PackageId>zSpec</PackageId>
     <Description>The project which contains some expressions helpers. It brings convenience to your project.</Description>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
