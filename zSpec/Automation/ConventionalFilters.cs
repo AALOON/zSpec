@@ -39,7 +39,28 @@ namespace zSpec.Automation
                 { new TypeKey(typeof(byte), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
                 { new TypeKey(typeof(byte), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
                 { new TypeKey(typeof(sbyte), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
-                { new TypeKey(typeof(sbyte), ToFilterAttribute.Key),  Expression.LessThanOrEqual }
+                { new TypeKey(typeof(sbyte), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+
+                { new TypeKey(typeof(DateTime?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(DateTime?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(DateTimeOffset?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(DateTimeOffset?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(int?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(int?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(uint?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(uint?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(long?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(long?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(ulong?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(ulong?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(short?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(short?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(ushort?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(ushort?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(byte?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(byte?), ToFilterAttribute.Key),  Expression.LessThanOrEqual },
+                { new TypeKey(typeof(sbyte?), FromFilterAttribute.Key),  Expression.GreaterThanOrEqual },
+                { new TypeKey(typeof(sbyte?), ToFilterAttribute.Key),  Expression.LessThanOrEqual }
             };
 
         internal ConventionalFilters()

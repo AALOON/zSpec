@@ -4,6 +4,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using zSpec.Automation;
 using zSpec.Expressions;
+using zSpec.Extensions;
 using zSpec.Tests.Context;
 
 namespace zSpec.Tests
@@ -80,10 +81,7 @@ namespace zSpec.Tests
         public void TestToFilter()
         {
             var searchTo = DateTimeOffset.UtcNow.AddHours(hours: -6);
-            var filter = new AutoFilter<User, UserFilter>(new UserFilter
-            {
-                To = searchTo
-            });
+            var filter = new UserFilter{To = searchTo}.ToAutoFilter<UserFilter, User>();
             var list = DbContext.Users.Filter(filter).ToList();
             list.Should().HaveCount(expected: 2);
         }
