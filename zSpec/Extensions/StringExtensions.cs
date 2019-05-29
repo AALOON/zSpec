@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace zSpec.Extensions
 {
-    ///<summary>
+    /// <summary>
     /// String helpful extensions
-    ///</summary>
+    /// </summary>
     public static class StringExtensions
     {
         /// <summary>

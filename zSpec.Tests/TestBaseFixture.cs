@@ -24,7 +24,7 @@ namespace zSpec.Tests
         public TestBaseFixture()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(SettingPath, optional: false, reloadOnChange: true);
+                .AddJsonFile(SettingPath, false, true);
             Configuration = builder.Build();
 
             var services = new ServiceCollection();
@@ -49,17 +49,6 @@ namespace zSpec.Tests
             Seed();
         }
 
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            var context = Container.Resolve<TestContext>();
-            //context.Database.EnsureDeleted();
-            context.Users.RemoveRange(context.Users.AsNoTracking().ToArray());
-            context.SaveChanges();
-            ContextLoggerFactory?.Dispose();
-            Container?.Dispose();
-        }
-
         internal TestContext DbContext => Container.Resolve<TestContext>();
 
         internal LoggerFactory ContextLoggerFactory { get; }
@@ -71,6 +60,17 @@ namespace zSpec.Tests
         internal IContainer Container { get; }
 
         internal ILogger Logger => Container.Resolve<ILogger>();
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            var context = Container.Resolve<TestContext>();
+            //context.Database.EnsureDeleted();
+            context.Users.RemoveRange(context.Users.AsNoTracking().ToArray());
+            context.SaveChanges();
+            ContextLoggerFactory?.Dispose();
+            Container?.Dispose();
+        }
 
         private void RegisterLogger(ContainerBuilder builder)
         {
@@ -106,8 +106,8 @@ namespace zSpec.Tests
         private void Seed()
         {
             var context = DbContext;
-            context.Users.Add(new User { Age = 10, Name = "Alpha", CreatedAt = DateTimeOffset.UtcNow.AddDays(days: -1) });
-            context.Users.Add(new User { Age = 18, Name = "Beta", CreatedAt = DateTimeOffset.UtcNow.AddDays(days: -1) });
+            context.Users.Add(new User { Age = 10, Name = "Alpha", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1) });
+            context.Users.Add(new User { Age = 18, Name = "Beta", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1) });
             context.Users.Add(new User { Age = 18, Name = "Gamma", Email = "gamma@gmail.com" });
             context.Users.Add(new User { Age = 6, Name = "Delta", Email = "delta@gmail.com" });
             context.SaveChanges();

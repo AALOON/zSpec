@@ -17,19 +17,19 @@ namespace zSpec.Automation
             _predicate = predicate;
         }
 
-        private IQueryable<TEntity> DoFilter(IQueryable<TEntity> queryable, TPredicate predicate)
-        {
-            return queryable.AutoFilter(predicate);
-        }
-
         /// <summary>
-        /// Applies expressions 
+        /// Applies expressions
         /// </summary>
         /// <param name="queryable"></param>
         /// <returns></returns>
         public IQueryable<TEntity> Filter(IQueryable<TEntity> queryable)
         {
             return DoFilter(queryable, _predicate);
+        }
+
+        private IQueryable<TEntity> DoFilter(IQueryable<TEntity> queryable, TPredicate predicate)
+        {
+            return queryable.AutoFilter(predicate);
         }
     }
 }

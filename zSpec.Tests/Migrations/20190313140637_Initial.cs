@@ -9,26 +9,24 @@ namespace zSpec.Tests.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
+                "Users",
+                table => new
                 {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: false),
-                    Age = table.Column<int>(nullable: false),
+                    Id = table.Column<long>()
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(),
+                    Age = table.Column<int>(),
                     Email = table.Column<string>(nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>()
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_Users", x => x.Id); });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Users");
+                "Users");
         }
     }
 }

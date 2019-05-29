@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using zSpec.Extensions;
+
 // ReSharper disable StaticMemberInGenericType
 
 namespace zSpec.Automation
@@ -75,6 +76,7 @@ namespace zSpec.Automation
     }
 
     internal delegate T ObjectActivator<out T>(params object[] args);
+
     internal delegate object ObjectActivator(params object[] args);
 
     /// <summary>
@@ -82,12 +84,13 @@ namespace zSpec.Automation
     /// </summary>
     public class FastTypeInfo
     {
-        private static readonly ConcurrentDictionary<Type, FastTypeInfo> Cahce
+        private static readonly ConcurrentDictionary<Type, FastTypeInfo> Cache
             = new ConcurrentDictionary<Type, FastTypeInfo>();
 
-        private readonly Type _type;
         private readonly ConcurrentDictionary<string, ObjectActivator> _activators;
         private readonly ConstructorInfo[] _constructors;
+
+        private readonly Type _type;
 
         public FastTypeInfo(Type type)
         {
@@ -127,7 +130,7 @@ namespace zSpec.Automation
         public TAttr GetCustomAttribute<TAttr>()
             where TAttr : Attribute
         {
-            return (TAttr)Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
+            return (TAttr) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
         }
 
         public Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
@@ -137,7 +140,7 @@ namespace zSpec.Automation
             var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
 
             var result = Expression.Lambda<Func<TObject, TProperty>>(propertyGetterExpression,
-                    paramExpression).Compile();
+                paramExpression).Compile();
 
             return result;
         }
@@ -155,7 +158,7 @@ namespace zSpec.Automation
 
         public static FastTypeInfo GetInstance(Type type)
         {
-            return Cahce.GetOrAdd(type, new FastTypeInfo(type));
+            return Cache.GetOrAdd(type, new FastTypeInfo(type));
         }
 
         public TSubject Create<TSubject>(params object[] args)
@@ -165,13 +168,14 @@ namespace zSpec.Automation
                 throw new InvalidOperationException($"It's wrong TSubject parameter expected: [{_type}]");
             }
 
-            return (TSubject)_activators.GetOrAdd(
+            return (TSubject) _activators.GetOrAdd(
                     GetSignature(args),
                     GetActivator(GetConstructorInfo(args)))
                 .Invoke(args);
         }
 
         #region Create private
+
         private static string GetSignature(object[] args)
         {
             return args.Select(x => x.GetType().ToString()).Join(",");
@@ -243,9 +247,10 @@ namespace zSpec.Automation
             var lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
 
             // compile it
-            var compiled = (ObjectActivator)lambda.Compile();
+            var compiled = (ObjectActivator) lambda.Compile();
             return compiled;
         }
+
         #endregion
     }
 }

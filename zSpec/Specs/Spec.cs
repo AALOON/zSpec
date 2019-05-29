@@ -10,6 +10,13 @@ namespace zSpec.Specs
     /// <typeparam name="TElement">Type of element in expression</typeparam>
     public class Spec<TElement>
     {
+        private readonly Expression<Func<TElement, bool>> _expression;
+
+        public Spec(Expression<Func<TElement, bool>> expression)
+        {
+            _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+        }
+
         public static bool operator false(Spec<TElement> spec)
         {
             return false;
@@ -45,15 +52,8 @@ namespace zSpec.Specs
             return new Spec<TElement>(expression);
         }
 
-        private readonly Expression<Func<TElement, bool>> _expression;
-
-        public Spec(Expression<Func<TElement, bool>> expression)
-        {
-            _expression = expression ?? throw new ArgumentNullException(nameof(expression));
-        }
-
         /// <summary>
-        /// Checks the if object satisfies the expressions, stores function in cache 
+        /// Checks the if object satisfies the expressions, stores function in cache
         /// </summary>
         /// <param name="obj">element instance</param>
         public bool IsSatisfiedBy(TElement obj)

@@ -5,15 +5,15 @@ namespace zSpec.Tests.Context
 {
     public class User
     {
+        private const int MatureAge = 18;
+
         public User()
         {
             CreatedAt = DateTimeOffset.UtcNow;
         }
 
-        private const int MatureAge = 18;
-
         public long Id { get; set; }
-        
+
         public string Name { get; set; }
 
         public int Age { get; set; }
@@ -24,12 +24,12 @@ namespace zSpec.Tests.Context
 
         public static Spec<User> IsMatureSpec => new Spec<User>(user => user.Age >= MatureAge);
 
+        public static Spec<User> IsHaveEmailSpec => new Spec<User>(user => user.Email != null);
+
         public bool IsMature()
         {
             return IsMatureSpec.IsSatisfiedBy(this);
         }
-
-        public static Spec<User> IsHaveEmailSpec => new Spec<User>(user => user.Email != null);
 
         public bool IsHaveEmail()
         {

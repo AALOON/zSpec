@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>Albert Zabirov</Authors>
-    <PackageId>zSpec</PackageId>
-    <Description>The project which contains some expressions helpers. It brings convenience to your project.</Description>
-    <Version>0.1.3</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Authors>Albert Zabirov</Authors>
+        <PackageId>zSpec</PackageId>
+        <Description>The project which contains some expressions helpers. It brings convenience to your project.</Description>
+        <Version>0.1.4</Version>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
 </Project>

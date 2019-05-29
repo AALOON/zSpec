@@ -25,32 +25,8 @@ namespace zSpec.Tests
                 Name = "lph"
             });
             var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 1);
+            list.Should().HaveCount(1);
             list.Should().OnlyContain(p => p.Name == "Alpha");
-        }
-
-        [Test]
-        public void Test3()
-        {
-            var filter = new AutoFilter<User, UserFilter>(new UserFilter
-            {
-                Email = "gamma@gmail.com"
-            });
-            var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 1);
-            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
-        }
-
-        [Test]
-        public void Test4()
-        {
-            var filter = new AutoFilter<User, UserFilter>(new UserFilter
-            {
-                Email = "gamma@gmail.com"
-            });
-            var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 1);
-            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
         }
 
         [Test]
@@ -62,28 +38,63 @@ namespace zSpec.Tests
                 Age = 9
             });
             var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 0);
+            list.Should().HaveCount(0);
+        }
+
+        [Test]
+        public void Test3()
+        {
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter
+            {
+                Email = "gamma@gmail.com"
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(1);
+            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
+        }
+
+        [Test]
+        public void Test4()
+        {
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter
+            {
+                Email = "gamma@gmail.com"
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(1);
+            list.Should().OnlyContain(p => p.Email == "gamma@gmail.com");
         }
 
         [Test]
         public void TestFromFilter()
         {
-            var searchFrom = DateTimeOffset.UtcNow.AddHours(hours: -5);
+            var searchFrom = DateTimeOffset.UtcNow.AddHours(-5);
             var filter = new AutoFilter<User, UserFilter>(new UserFilter
             {
                 CreatedAt = searchFrom
             });
             var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 2);
+            list.Should().HaveCount(2);
+        }
+
+        [Test]
+        public void TestMultiFilter()
+        {
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter
+            {
+                MultiAge = new[] { 10, 6 }
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(2);
         }
 
         [Test]
         public void TestToFilter()
         {
-            var searchTo = DateTimeOffset.UtcNow.AddHours(hours: -6);
-            var filter = new UserFilter{To = searchTo}.ToAutoFilter<UserFilter, User>();
+            var searchTo = DateTimeOffset.UtcNow.AddHours(-6);
+            var filter = new UserFilter { To = searchTo }.ToAutoFilter<UserFilter, User>();
             var list = DbContext.Users.Filter(filter).ToList();
-            list.Should().HaveCount(expected: 2);
+            list.Should().HaveCount(2);
         }
     }
 }

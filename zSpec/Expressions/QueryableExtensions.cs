@@ -7,7 +7,7 @@ using zSpec.Automation;
 namespace zSpec.Expressions
 {
     /// <summary>
-    /// Helpful extension of <see cref="IQueryable"/>
+    /// Helpful extension of <see cref="IQueryable" />
     /// </summary>
     public static class QueryableExtensions
     {

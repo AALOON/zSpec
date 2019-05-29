@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using zSpec.Automation.Attributes;
+
 // ReSharper disable StaticMemberInGenericType
 
 namespace zSpec.Automation
@@ -30,20 +31,21 @@ namespace zSpec.Automation
 
     public class FastPropInfo
     {
-        private static readonly ConcurrentDictionary<Type, FastPropInfo> Cahce
+        private static readonly ConcurrentDictionary<Type, FastPropInfo> Cache
             = new ConcurrentDictionary<Type, FastPropInfo>();
 
         public FastPropInfo(Type type)
         {
+            const bool inherit = true;
             var typeInfo = FastTypeInfo.GetInstance(type);
             Attributes = typeInfo.PublicProperties
-                .ToDictionary(p => p.Name, p => p.GetCustomAttributes(inherit: true));
+                .ToDictionary(p => p.Name, p => p.GetCustomAttributes(inherit));
 
             PropertiesByColumnMap = typeInfo.PublicProperties
                 .GroupBy(p => GetName(p.Name))
                 .ToDictionary(p => p.Key, p => p.ToArray());
-
         }
+
         public Dictionary<string, object[]> Attributes { get; }
 
         public Dictionary<string, PropertyInfo[]> PropertiesByColumnMap { get; }
@@ -51,13 +53,13 @@ namespace zSpec.Automation
         public TAttribute FindAttribute<TAttribute>(string propName)
             where TAttribute : Attribute
         {
-            return (TAttribute)Attributes[propName]
+            return (TAttribute) Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(TAttribute));
         }
 
         public static FastPropInfo GetInstance(Type type)
         {
-            return Cahce.GetOrAdd(type, new FastPropInfo(type));
+            return Cache.GetOrAdd(type, new FastPropInfo(type));
         }
 
         /// <summary>
@@ -68,9 +70,11 @@ namespace zSpec.Automation
             var attribute = Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(ColumnNameAttribute));
             if (attribute == null)
+            {
                 return propName;
+            }
 
-            var columnAttribute = (ColumnNameAttribute)attribute;
+            var columnAttribute = (ColumnNameAttribute) attribute;
 
             return columnAttribute.Name;
         }

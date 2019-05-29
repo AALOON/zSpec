@@ -29,7 +29,7 @@ namespace zSpec.Extensions
                 .ToArray();
 
             // ReSharper disable once CoVariantArrayConversion
-            var call = Expression.Call(instance: null, method, parameters);
+            var call = Expression.Call(null, method, parameters);
             return Expression.Lambda(call, parameters).Compile();
         }
     }

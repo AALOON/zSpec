@@ -21,9 +21,9 @@ namespace zSpec.Pagination
         /// <summary>
         /// Allows to specify order column name
         /// Also this value supports attributes
-        /// <see cref="DefaultSortByAttribute"/>,
-        /// <see cref="OrderAttribute"/>,
-        /// <see cref="SkipOrderIfEmptyAttribute"/>
+        /// <see cref="DefaultSortByAttribute" />,
+        /// <see cref="OrderAttribute" />,
+        /// <see cref="SkipOrderIfEmptyAttribute" />
         /// </summary>
         OrderByColumn OrderBy { get; }
     }

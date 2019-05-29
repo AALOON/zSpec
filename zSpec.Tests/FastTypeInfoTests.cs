@@ -9,6 +9,14 @@ namespace zSpec.Tests
     public class FastTypeInfoTests
     {
         [Test]
+        public void TestGenericCheckProperties()
+        {
+            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.OrderBy));
+            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.Page));
+            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.Take));
+        }
+
+        [Test]
         public void TestGenericPublicPropertiesMapSamePublicProperties()
         {
             FastTypeInfo<Paging>.PublicProperties.Count.Should().Be(3);
@@ -24,14 +32,6 @@ namespace zSpec.Tests
             var paging = FastTypeInfo<Paging>.Create();
             paging.Should().NotBeNull();
             paging.Take.Should().Be(2);
-        }
-
-        [Test]
-        public void TestGenericCheckProperties()
-        {
-            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.OrderBy));
-            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.Page));
-            FastTypeInfo<Paging>.PublicPropertiesMap.Should().ContainKey(nameof(Paging.Take));
         }
     }
 }

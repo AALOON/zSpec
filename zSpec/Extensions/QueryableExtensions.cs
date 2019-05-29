@@ -27,7 +27,8 @@ namespace zSpec.Extensions
         /// <summary>
         /// Orders by property name.
         /// </summary>
-        public static IOrderedQueryable<TSubject> OrderBy<TSubject>(this IQueryable<TSubject> query, string propertyName)
+        public static IOrderedQueryable<TSubject> OrderBy<TSubject>(this IQueryable<TSubject> query,
+            string propertyName)
         {
             return Conventions<TSubject>.Sort(query, propertyName);
         }
@@ -35,7 +36,8 @@ namespace zSpec.Extensions
         /// <summary>
         /// Orders by Descending property name.
         /// </summary>
-        public static IOrderedQueryable<TSubject> OrderByDescending<TSubject>(this IQueryable<TSubject> query, string propertyName)
+        public static IOrderedQueryable<TSubject> OrderByDescending<TSubject>(this IQueryable<TSubject> query,
+            string propertyName)
         {
             return Conventions<TSubject>.Sort(query, propertyName, SortOrder.Descending);
         }
@@ -51,7 +53,8 @@ namespace zSpec.Extensions
         /// <summary>
         /// Orders then Descending property name.
         /// </summary>
-        public static IOrderedQueryable<TSubject> ThenByDescending<TSubject>(this IQueryable<TSubject> query, string propertyName)
+        public static IOrderedQueryable<TSubject> ThenByDescending<TSubject>(this IQueryable<TSubject> query,
+            string propertyName)
         {
             return Conventions<TSubject>.Sort(query, propertyName, SortOrder.DescendingThenBy);
         }

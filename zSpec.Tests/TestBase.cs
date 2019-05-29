@@ -1,11 +1,18 @@
 ﻿using Autofac;
 using NUnit.Framework;
 using Serilog;
+using TestContext = zSpec.Tests.Context.TestContext;
 
 namespace zSpec.Tests
 {
     public abstract class TestBase
     {
+        protected TestContext DbContext => TestFixture.Container.Resolve<TestContext>();
+
+        protected TestBaseFixture TestFixture { get; set; }
+
+        protected ILogger Logger => TestFixture.Container.Resolve<ILogger>();
+
         [OneTimeSetUp]
         public void TestOneTimeSetup()
         {
@@ -47,11 +54,5 @@ namespace zSpec.Tests
         protected virtual void CleanUp()
         {
         }
-
-        protected Context.TestContext DbContext => TestFixture.Container.Resolve<Context.TestContext>();
-
-        protected TestBaseFixture TestFixture { get; set; }
-
-        protected ILogger Logger => TestFixture.Container.Resolve<ILogger>();
     }
 }

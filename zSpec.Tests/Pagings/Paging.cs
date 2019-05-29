@@ -2,7 +2,7 @@
 
 namespace zSpec.Tests.Pagings
 {
-    public class Paging : IPaging   
+    public class Paging : IPaging
     {
         /// <inheritdoc />
         public int Page { get; set; }

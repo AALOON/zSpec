@@ -13,7 +13,7 @@ namespace zSpec.Tests
         public void Test1()
         {
             var list = DbContext.Users.Where(User.IsMatureSpec).ToList();
-            list.Should().HaveCount(expected: 2);
+            list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Age >= 18);
         }
 
@@ -21,7 +21,7 @@ namespace zSpec.Tests
         public void Test2()
         {
             var list = DbContext.Users.Where(User.IsHaveEmailSpec).ToList();
-            list.Should().HaveCount(expected: 2);
+            list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Email != null);
         }
 
@@ -29,7 +29,7 @@ namespace zSpec.Tests
         public void Test3()
         {
             var list = DbContext.Users.Where(User.IsMatureSpec && User.IsHaveEmailSpec).ToList();
-            list.Should().HaveCount(expected: 1);
+            list.Should().HaveCount(1);
             list.Should().OnlyContain(p => p.Age >= 18 && p.Email != null);
         }
 
@@ -37,49 +37,27 @@ namespace zSpec.Tests
         public void Test4()
         {
             var list = DbContext.Users.Where(User.IsMatureSpec || User.IsHaveEmailSpec).ToList();
-            list.Should().HaveCount(expected: 2);
+            list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Age >= 18 || p.Email != null);
-        }
-
-        [Test]
-        public void Test6()
-        {
-            var user = new User { Age = 10, Name = "Alpha" };
-            user.IsHasName("Alpha").Should().BeTrue();
-            user.IsHasName("Alpha1").Should().BeFalse();
-            user.IsHasName("Alpha2").Should().BeFalse();
-        }
-
-        [Test]
-        public void Test7()
-        {
-            var list = DbContext.Users.Where(User.IsHasNameSpec("Alpha")).ToList();
-            list.Should().HaveCount(expected: 1);
         }
 
         /// <summary>
         /// TestBase [0] --------------------------1
         /// Client Evaluation
-        /// 
         /// TestBase [0] --------------------------2
         /// SELECT "user"."Id", "user"."Age", "user"."Email", "user"."Name"
         /// FROM "Users" AS "user"
         /// WHERE "user"."Name" = 'alpha'
-        /// 
         /// TestBase [0] --------------------------3
         /// Client Evaluation
-        /// 
         /// TestBase [0] --------------------------4
         /// Client Evaluation
-        /// 
         /// TestBase [0] --------------------------5
         /// Client Evaluation
-        /// 
         /// TestBase [0] --------------------------6
         /// SELECT "user"."Id", "user"."Age", "user"."Email", "user"."Name"
         /// FROM "Users" AS "user"
         /// WHERE upper("user"."Name") = 'ALPHA'
-        /// 
         /// TestBase [0] --------------------------7
         /// SELECT "user"."Id", "user"."Age", "user"."Email", "user"."Name"
         /// FROM "Users" AS "user"
@@ -137,6 +115,22 @@ namespace zSpec.Tests
             _ = DbContext.Users
                 .Where(user => "ALPHA".ToUpper().Equals(user.Name.ToUpper()))
                 .ToList();
+        }
+
+        [Test]
+        public void Test6()
+        {
+            var user = new User { Age = 10, Name = "Alpha" };
+            user.IsHasName("Alpha").Should().BeTrue();
+            user.IsHasName("Alpha1").Should().BeFalse();
+            user.IsHasName("Alpha2").Should().BeFalse();
+        }
+
+        [Test]
+        public void Test7()
+        {
+            var list = DbContext.Users.Where(User.IsHasNameSpec("Alpha")).ToList();
+            list.Should().HaveCount(1);
         }
     }
 }

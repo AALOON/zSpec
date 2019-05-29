@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace zSpec.Tests.Context
 {
     /// <summary>
-    /// Entity configuration of <see cref="User"/>
+    /// Entity configuration of <see cref="User" />
     /// </summary>
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {

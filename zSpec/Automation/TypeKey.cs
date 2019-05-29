@@ -17,10 +17,14 @@ namespace zSpec.Automation
         public override bool Equals(object obj)
         {
             if (obj == null)
+            {
                 return false;
+            }
 
             if (obj is TypeKey typeKey)
+            {
                 return Equals(typeKey);
+            }
 
             return false;
         }
