@@ -11,6 +11,10 @@ namespace zSpec.Tests
 
         protected TestBaseFixture TestFixture { get; set; }
 
+        protected IContainer Container => TestFixture.Container;
+
+        protected string LoggedData => Container.Resolve<StringBuilderLoggerProvider>().GetLogger().GetData();
+
         protected ILogger Logger => TestFixture.Container.Resolve<ILogger>();
 
         [OneTimeSetUp]
@@ -53,6 +57,7 @@ namespace zSpec.Tests
 
         protected virtual void CleanUp()
         {
+            Container.Resolve<StringBuilderLoggerProvider>().GetLogger().Clear();
         }
     }
 }

@@ -21,9 +21,11 @@ namespace zSpec.Automation.Predicates
         public Expression<Func<TSubject, bool>> ToExpression<TSubject>(ParameterExpression parameter)
         {
             var property = Expression.Property(parameter, Property);
-            Expression value = Expression.Constant(Value);
 
-            value = Expression.Convert(value, property.Type);
+            var holder = new ValueHolder<object> { value = Value };
+
+            var value = Expression.Convert(Expression.PropertyOrField(Expression.Constant(holder), nameof(holder.value)), property.Type);
+
             var body = Conventions.Filters[new TypeKey(property.Type, Key)](property, value);
 
             return Expression.Lambda<Func<TSubject, bool>>(body, parameter);
