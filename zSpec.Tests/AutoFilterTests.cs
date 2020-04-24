@@ -75,6 +75,28 @@ namespace zSpec.Tests
             });
             var list = DbContext.Users.Filter(filter).ToList();
             list.Should().HaveCount(2);
+
+            list.Should().HaveCount(2);
+
+            var data = LoggedData;
+            data.Should().Contain("WHERE [u].[CreatedAt] >= @__value_0");
+        }
+
+        [Test]
+        public void TestFromAndToFilter()
+        {
+            var searchFrom = DateTimeOffset.UtcNow.AddHours(-5);
+            var searchTo = DateTimeOffset.UtcNow;
+            var filter = new AutoFilter<User, UserFilter>(new UserFilter
+            {
+                CreatedAt = searchFrom,
+                To = searchTo
+            });
+            var list = DbContext.Users.Filter(filter).ToList();
+            list.Should().HaveCount(2);
+
+            var data = LoggedData;
+            data.Should().Contain("WHERE ([u].[CreatedAt] >= @__value_0) AND ([u].[CreatedAt] <= @__value_1)");
         }
 
         [Test]
@@ -86,6 +108,10 @@ namespace zSpec.Tests
             });
             var list = DbContext.Users.Filter(filter).ToList();
             list.Should().HaveCount(2);
+
+            var data = LoggedData;
+
+            data.Should().Contain("WHERE [u].[Age] IN (@__value_0, @__value_1)");
         }
 
         [Test]

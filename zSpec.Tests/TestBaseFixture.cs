@@ -41,6 +41,9 @@ namespace zSpec.Tests
 
             ContextLoggerFactory = new LoggerFactory();
             ContextLoggerFactory.AddProvider(new SerilogLoggerProvider());
+            var sbProvider = new StringBuilderLoggerProvider();
+            ContextLoggerFactory.AddProvider(sbProvider);
+            containerBuilder.RegisterInstance(sbProvider);
 
             Container = containerBuilder.Build();
 

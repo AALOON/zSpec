@@ -32,8 +32,10 @@ namespace zSpec.Automation.Predicates
 
             foreach (var oneValue in Value)
             {
-                Expression value = Expression.Constant(oneValue);
-                value = Expression.Convert(value, property.Type);
+                var holder = new ValueHolder<object> { value = oneValue };
+
+                var value = Expression.Convert(Expression.PropertyOrField(Expression.Constant(holder), nameof(holder.value)), property.Type);
+
                 var body = Conventions.Filters[new TypeKey(property.Type, Key)](property, value);
 
                 if (aggregatedExpression == null)
