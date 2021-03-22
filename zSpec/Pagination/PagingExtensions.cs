@@ -67,7 +67,7 @@ namespace zSpec.Pagination
         /// <summary>
         /// Get property information
         /// </summary>
-        public static FastPropInfo GetPropInfo<TPaging>(TPaging paging)
+        public static FastPropInfo GetPropInfo<TPaging>(this TPaging paging)
         {
             if (paging == null)
             {
@@ -80,15 +80,23 @@ namespace zSpec.Pagination
         /// <summary>
         /// Cast to dictionary for Flurl SetQueryParams
         /// </summary>
-        public static IDictionary<string, object> ToQueryParams(IPaging paging)
+        public static IDictionary<string, object> ToQueryParams(this IPaging paging)
         {
-            return new Dictionary<string, object>
+            var queryParams = new Dictionary<string, object>
             {
                 { nameof(paging.Page), paging.Page },
-                { nameof(paging.Take), paging.Take },
-                { $"{nameof(paging.OrderBy)}.{nameof(paging.OrderBy.Column)}", paging.OrderBy.Column },
-                { $"{nameof(paging.OrderBy)}.{nameof(paging.OrderBy.Order)}", paging.OrderBy.Order }
+                { nameof(paging.Take), paging.Take }
             };
+
+            if (paging.OrderBy != null)
+            {
+                const string column = nameof(paging.OrderBy) + "." + nameof(paging.OrderBy.Column);
+                const string order = nameof(paging.OrderBy) + "." + nameof(paging.OrderBy.Order);
+                queryParams[column] = paging.OrderBy.Column;
+                queryParams[order] = paging.OrderBy.Order;
+            }
+
+            return queryParams;
         }
 
         private static IOrderedQueryable<TElement> PaginateInternal<TElement, TPaging>(
