@@ -5,9 +5,18 @@
     <Authors>Albert Zabirov</Authors>
     <PackageId>zSpec</PackageId>
     <Description>The project which contains some expressions helpers. It brings convenience to your project.</Description>
-    <Version>0.1.4</Version>
+    <Version>0.1.6</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
+    <PackageProjectUrl>https://github.com/AALOON/zSpec</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\readme.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
+  </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.218
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "zSpec", "zSpec\zSpec.csproj", "{8F00831A-E2C9-4177-87A2-54BDD0AE6E14}"
 EndProject
@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "zSpec.Tests", "zSpec.Tests\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{367353CB-AFD3-4FED-9A00-0743E11F8873}"
 	ProjectSection(SolutionItems) = preProject
+		pack_and_push.sh = pack_and_push.sh
 		readme.md = readme.md
 	EndProjectSection
 EndProject
