@@ -1,15 +1,15 @@
-﻿using zSpec.Automation.Attributes;
+using zSpec.Automation.Attributes;
 
 namespace zSpec.Pagination
 {
     /// <summary>
-    /// Paging interface allows to implement your paging model
+    /// Paging interface allows to implement your paging model.
     /// </summary>
     public interface IPaging
     {
         /// <summary>
-        /// Page of paginated list from zero
-        /// All values less than zero will automatically use zero
+        /// Page of paginated list from zero.
+        /// All values less than zero will automatically use zero.
         /// </summary>
         int Page { get; }
 
@@ -19,8 +19,8 @@ namespace zSpec.Pagination
         int Take { get; }
 
         /// <summary>
-        /// Allows to specify order column name
-        /// Also this value supports attributes
+        /// Allows to specify order column name.
+        /// Also this Value supports attributes.
         /// <see cref="DefaultSortByAttribute" />,
         /// <see cref="OrderAttribute" />,
         /// <see cref="SkipOrderIfEmptyAttribute" />

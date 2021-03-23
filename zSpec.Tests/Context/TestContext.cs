@@ -12,9 +12,7 @@ namespace zSpec.Tests.Context
         public DbSet<User> Users { get; set; }
 
         /// <inheritdoc />
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        protected override void OnModelCreating(ModelBuilder modelBuilder) =>
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-        }
     }
 }

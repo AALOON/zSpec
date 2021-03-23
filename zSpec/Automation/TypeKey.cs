@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 
 namespace zSpec.Automation
 {
-    public readonly struct TypeKey
+    internal readonly struct TypeKey
     {
         public TypeKey(Type type, string key)
         {
-            Type = type;
-            Key = key;
+            this.Type = type;
+            this.Key = key;
         }
 
         public Type Type { get; }
@@ -23,25 +23,16 @@ namespace zSpec.Automation
 
             if (obj is TypeKey typeKey)
             {
-                return Equals(typeKey);
+                return this.Equals(typeKey);
             }
 
             return false;
         }
 
-        public bool Equals(TypeKey typeKey)
-        {
-            return Type == typeKey.Type && Key == typeKey.Key;
-        }
+        public bool Equals(TypeKey typeKey) => this.Type == typeKey.Type && this.Key == typeKey.Key;
 
-        public override int GetHashCode()
-        {
-            return (Type, Key).GetHashCode();
-        }
+        public override int GetHashCode() => (this.Type, this.Key).GetHashCode();
 
-        public override string ToString()
-        {
-            return $"{Type},{Key}";
-        }
+        public override string ToString() => $"{this.Type},{this.Key}";
     }
 }

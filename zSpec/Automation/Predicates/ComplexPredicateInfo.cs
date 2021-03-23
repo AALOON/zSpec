@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using zSpec.Automation.Attributes;
@@ -6,6 +6,9 @@ using zSpec.Expressions;
 
 namespace zSpec.Automation.Predicates
 {
+    /// <summary>
+    /// Information about complex predicate. 
+    /// </summary>
     internal class ComplexPredicateInfo : IPredicateInfo
     {
         public PropertyInfo Property { get; set; }
@@ -17,26 +20,25 @@ namespace zSpec.Automation.Predicates
         public MultiValueAttribute Attribute { get; set; }
 
         /// <inheritdoc />
-        public bool IsOk()
-        {
-            return Value != null && Value.Length > 0;
-        }
+        public bool IsOk() => this.Value != null && this.Value.Length > 0;
 
+        /// <inheritdoc />
         public Expression<Func<TSubject, bool>> ToExpression<TSubject>(ParameterExpression parameter)
         {
-            var property = Expression.Property(parameter, Property);
+            var property = Expression.Property(parameter, this.Property);
 
             Expression<Func<TSubject, bool>> aggregatedExpression = null;
 
-            var composeKind = Attribute.ComposeKind;
+            var composeKind = this.Attribute.ComposeKind;
 
-            foreach (var oneValue in Value)
+            foreach (var oneValue in this.Value)
             {
-                var holder = new ValueHolder<object> { value = oneValue };
+                var holder = new ValueHolder<object> { Value = oneValue };
 
-                var value = Expression.Convert(Expression.PropertyOrField(Expression.Constant(holder), nameof(holder.value)), property.Type);
+                var value = Expression.Convert(
+                    Expression.PropertyOrField(Expression.Constant(holder), nameof(holder.Value)), property.Type);
 
-                var body = Conventions.Filters[new TypeKey(property.Type, Key)](property, value);
+                var body = Conventions.Filters[new TypeKey(property.Type, this.Key)](property, value);
 
                 if (aggregatedExpression == null)
                 {
@@ -50,7 +52,7 @@ namespace zSpec.Automation.Predicates
                 }
             }
 
-            return aggregatedExpression ?? throw new ArgumentNullException(Property.Name);
+            return aggregatedExpression ?? throw new ArgumentNullException(this.Property.Name);
         }
     }
 }

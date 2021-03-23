@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using zSpec.Automation;
@@ -7,12 +7,25 @@ using zSpec.Automation.Attributes;
 namespace zSpec.Pagination
 {
     /// <summary>
-    /// Paging extensions
+    /// Paging extensions.
     /// </summary>
     public static class PagingExtensions
     {
         /// <summary>
-        /// Allows to add skip and take and also may be sort to IQueryable
+        /// Get property information.
+        /// </summary>
+        public static FastPropInfo GetPropInfo<TPaging>(this TPaging paging)
+        {
+            if (paging == null)
+            {
+                return FastPropInfo.GetInstance(typeof(TPaging));
+            }
+
+            return FastPropInfo.GetInstance(paging.GetType());
+        }
+
+        /// <summary>
+        /// Allows to add skip and take and also may be sort to IQueryable.
         /// </summary>
         public static IOrderedQueryable<TElement> Paginate<TElement, TPaging>(this IQueryable<TElement> queryable,
             TPaging paging) where TPaging : IPaging
@@ -41,7 +54,7 @@ namespace zSpec.Pagination
         }
 
         /// <summary>
-        /// Allows to add skip and take to IOrderedQueryable
+        /// Allows to add skip and take to IOrderedQueryable.
         /// </summary>
         public static IOrderedQueryable<TElement> Paginate<TElement, TPaging>(
             this IOrderedQueryable<TElement> orderedQueryable,
@@ -65,27 +78,13 @@ namespace zSpec.Pagination
         }
 
         /// <summary>
-        /// Get property information
-        /// </summary>
-        public static FastPropInfo GetPropInfo<TPaging>(this TPaging paging)
-        {
-            if (paging == null)
-            {
-                return FastPropInfo.GetInstance(typeof(TPaging));
-            }
-
-            return FastPropInfo.GetInstance(paging.GetType());
-        }
-
-        /// <summary>
-        /// Cast to dictionary for Flurl SetQueryParams
+        /// Cast to dictionary for Flurl SetQueryParams.
         /// </summary>
         public static IDictionary<string, object> ToQueryParams(this IPaging paging)
         {
             var queryParams = new Dictionary<string, object>
             {
-                { nameof(paging.Page), paging.Page },
-                { nameof(paging.Take), paging.Take }
+                { nameof(paging.Page), paging.Page }, { nameof(paging.Take), paging.Take }
             };
 
             if (paging.OrderBy != null)
@@ -99,15 +98,22 @@ namespace zSpec.Pagination
             return queryParams;
         }
 
-        private static IOrderedQueryable<TElement> PaginateInternal<TElement, TPaging>(
-            this IQueryable<TElement> queryable,
-            TPaging paging) where TPaging : IPaging
+        private static SortOrder GetOrder<TPaging>(TPaging paging)
+            where TPaging : IPaging
         {
-            var page = Math.Max(paging.Page, 0);
+            if (paging != null && paging.OrderBy?.Order != null)
+            {
+                return paging.OrderBy.Order.Value;
+            }
 
-            return (IOrderedQueryable<TElement>) queryable
-                .Skip(page * paging.Take)
-                .Take(paging.Take);
+            var defaultOrderAttribute = GetPropInfo(paging)
+                .FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
+            if (defaultOrderAttribute == null)
+            {
+                return SortOrder.Ascending;
+            }
+
+            return defaultOrderAttribute.SortOrder;
         }
 
         private static string GetOrderColumnName<TElement, TPaging>(TPaging paging)
@@ -128,22 +134,15 @@ namespace zSpec.Pagination
             return defaultColumnAttribute.ColumnName;
         }
 
-        private static SortOrder GetOrder<TPaging>(TPaging paging)
-            where TPaging : IPaging
+        private static IOrderedQueryable<TElement> PaginateInternal<TElement, TPaging>(
+            this IQueryable<TElement> queryable,
+            TPaging paging) where TPaging : IPaging
         {
-            if (paging != null && paging.OrderBy?.Order != null)
-            {
-                return paging.OrderBy.Order.Value;
-            }
+            var page = Math.Max(paging.Page, 0);
 
-            var defaultOrderAttribute = GetPropInfo(paging)
-                .FindAttribute<DefaultSortByAttribute>(nameof(paging.OrderBy));
-            if (defaultOrderAttribute == null)
-            {
-                return SortOrder.Ascending;
-            }
-
-            return defaultOrderAttribute.SortOrder;
+            return (IOrderedQueryable<TElement>)queryable
+                .Skip(page * paging.Take)
+                .Take(paging.Take);
         }
     }
 }

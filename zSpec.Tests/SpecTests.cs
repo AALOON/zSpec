@@ -12,7 +12,7 @@ namespace zSpec.Tests
         [Test]
         public void Test1()
         {
-            var list = DbContext.Users.Where(User.IsMatureSpec).ToList();
+            var list = this.DbContext.Users.Where(User.IsMatureSpec).ToList();
             list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Age >= 18);
         }
@@ -20,7 +20,7 @@ namespace zSpec.Tests
         [Test]
         public void Test2()
         {
-            var list = DbContext.Users.Where(User.IsHaveEmailSpec).ToList();
+            var list = this.DbContext.Users.Where(User.IsHaveEmailSpec).ToList();
             list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Email != null);
         }
@@ -28,7 +28,7 @@ namespace zSpec.Tests
         [Test]
         public void Test3()
         {
-            var list = DbContext.Users.Where(User.IsMatureSpec && User.IsHaveEmailSpec).ToList();
+            var list = this.DbContext.Users.Where(User.IsMatureSpec && User.IsHaveEmailSpec).ToList();
             list.Should().HaveCount(1);
             list.Should().OnlyContain(p => p.Age >= 18 && p.Email != null);
         }
@@ -36,7 +36,7 @@ namespace zSpec.Tests
         [Test]
         public void Test4()
         {
-            var list = DbContext.Users.Where(User.IsMatureSpec || User.IsHaveEmailSpec).ToList();
+            var list = this.DbContext.Users.Where(User.IsMatureSpec || User.IsHaveEmailSpec).ToList();
             list.Should().HaveCount(2);
             list.Should().OnlyContain(p => p.Age >= 18 || p.Email != null);
         }
@@ -66,8 +66,8 @@ namespace zSpec.Tests
         [Test]
         public void Test5()
         {
-            Logger.Information("--------------------------1");
-            DbContext.Users.Invoking(users =>
+            this.Logger.Information("--------------------------1");
+            this.DbContext.Users.Invoking(users =>
             {
                 _ = users
                     .Where(user => user.Name.Equals("alpha", StringComparison.OrdinalIgnoreCase))
@@ -75,21 +75,21 @@ namespace zSpec.Tests
             }).Should().Throw<InvalidOperationException>();
 
 
-            Logger.Information("--------------------------2");
-            _ = DbContext.Users
+            this.Logger.Information("--------------------------2");
+            _ = this.DbContext.Users
                 .Where(user => user.Name == "alpha")
                 .ToList();
 
-            Logger.Information("--------------------------3");
-            DbContext.Users.Invoking(users =>
+            this.Logger.Information("--------------------------3");
+            this.DbContext.Users.Invoking(users =>
             {
                 _ = users
                     .Where(user => "alpha".Equals(user.Name, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }).Should().Throw<InvalidOperationException>();
 
-            Logger.Information("--------------------------4");
-            DbContext.Users.Invoking(users =>
+            this.Logger.Information("--------------------------4");
+            this.DbContext.Users.Invoking(users =>
             {
                 _ = users
                     .Where(user => "ALPHA".Equals(user.Name, StringComparison.OrdinalIgnoreCase))
@@ -97,8 +97,8 @@ namespace zSpec.Tests
             }).Should().Throw<InvalidOperationException>();
 
 
-            Logger.Information("--------------------------5");
-            DbContext.Users.Invoking(users =>
+            this.Logger.Information("--------------------------5");
+            this.DbContext.Users.Invoking(users =>
             {
                 _ = users
                     .Where(user => user.Name.ToUpper().Equals("alpha", StringComparison.OrdinalIgnoreCase))
@@ -106,13 +106,13 @@ namespace zSpec.Tests
             }).Should().Throw<InvalidOperationException>();
 
 
-            Logger.Information("--------------------------6");
-            _ = DbContext.Users
+            this.Logger.Information("--------------------------6");
+            _ = this.DbContext.Users
                 .Where(user => user.Name.ToUpper() == "ALPHA")
                 .ToList();
 
-            Logger.Information("--------------------------7");
-            _ = DbContext.Users
+            this.Logger.Information("--------------------------7");
+            _ = this.DbContext.Users
                 .Where(user => "ALPHA".ToUpper().Equals(user.Name.ToUpper()))
                 .ToList();
         }
@@ -129,7 +129,7 @@ namespace zSpec.Tests
         [Test]
         public void Test7()
         {
-            var list = DbContext.Users.Where(User.IsHasNameSpec("Alpha")).ToList();
+            var list = this.DbContext.Users.Where(User.IsHasNameSpec("Alpha")).ToList();
             list.Should().HaveCount(1);
         }
     }

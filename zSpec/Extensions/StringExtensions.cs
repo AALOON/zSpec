@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace zSpec.Extensions
@@ -8,23 +8,6 @@ namespace zSpec.Extensions
     /// </summary>
     public static class StringExtensions
     {
-        /// <summary>
-        /// Indicates whether the specified string not null or an empty string.
-        /// </summary>
-        public static bool HasValue(this string value)
-        {
-            return !string.IsNullOrEmpty(value);
-        }
-
-        /// <summary>
-        /// Join the enumerable with separator
-        /// aka string.Join(separator, source)
-        /// </summary>
-        public static string Join(this IEnumerable<string> source, string separator)
-        {
-            return string.Join(separator, source);
-        }
-
         /// <summary>
         /// Checks if string contains substring
         /// </summary>
@@ -39,11 +22,20 @@ namespace zSpec.Extensions
         }
 
         /// <summary>
-        /// Checks if string contains substring
+        /// Indicates whether the specified string not null or an empty string.
         /// </summary>
-        public static bool LikewiseContains(this string input, string value)
-        {
-            return Contains(input, value, StringComparison.CurrentCulture);
-        }
+        public static bool HasValue(this string value) => !string.IsNullOrEmpty(value);
+
+        /// <summary>
+        /// Join the enumerable with separator
+        /// aka string.Join(separator, source)
+        /// </summary>
+        public static string Join(this IEnumerable<string> source, string separator) => string.Join(separator, source);
+
+        /// <summary>
+        /// Checks if string contains substring.
+        /// </summary>
+        public static bool LikewiseContains(this string input, string value, StringComparison comparison = StringComparison.CurrentCulture) =>
+            Contains(input, value, comparison);
     }
 }

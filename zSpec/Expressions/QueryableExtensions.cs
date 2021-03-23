@@ -12,6 +12,18 @@ namespace zSpec.Expressions
     public static class QueryableExtensions
     {
         /// <summary>
+        /// Applies filter to queryable
+        /// </summary>
+        /// <typeparam name="TEntity">Type of entity</typeparam>
+        /// <param name="queryable">Queryable</param>
+        /// <param name="filter">Filter which will be applied</param>
+        /// <returns></returns>
+        public static IQueryable<TEntity> Filter<TEntity>(this IQueryable<TEntity> queryable,
+            IAutoFilter<TEntity> filter)
+            where TEntity : class =>
+            filter.Filter(queryable);
+
+        /// <summary>
         /// Allows to filter by aggregation field
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>
@@ -21,10 +33,8 @@ namespace zSpec.Expressions
         /// <param name="where">Search expression</param>
         /// <returns></returns>
         public static IQueryable<TEntity> Where<TEntity, TParam>(this IQueryable<TEntity> queryable,
-            Expression<Func<TEntity, TParam>> prop, Expression<Func<TParam, bool>> where)
-        {
-            return queryable.Where(prop.Compose<Func<TEntity, bool>>(where, Expression.AndAlso));
-        }
+            Expression<Func<TEntity, TParam>> prop, Expression<Func<TParam, bool>> where) =>
+            queryable.Where(prop.Compose<Func<TEntity, bool>>(where, Expression.AndAlso));
 
         /// <summary>
         /// Allows to filter by aggregation collection
@@ -36,23 +46,7 @@ namespace zSpec.Expressions
         /// <param name="where">Search expression</param>
         /// <returns></returns>
         public static IQueryable<TEntity> Where<TEntity, TParam>(this IQueryable<TEntity> queryable,
-            Expression<Func<TEntity, ICollection<TParam>>> prop, Expression<Func<TParam, bool>> where)
-        {
-            return queryable.Where(prop.Compose<Func<TEntity, bool>>(where, Expression.AndAlso));
-        }
-
-        /// <summary>
-        /// Applies filter to queryable
-        /// </summary>
-        /// <typeparam name="TEntity">Type of entity</typeparam>
-        /// <param name="queryable">Queryable</param>
-        /// <param name="filter">Filter which will be applied</param>
-        /// <returns></returns>
-        public static IQueryable<TEntity> Filter<TEntity>(this IQueryable<TEntity> queryable,
-            IAutoFilter<TEntity> filter)
-            where TEntity : class
-        {
-            return filter.Filter(queryable);
-        }
+            Expression<Func<TEntity, ICollection<TParam>>> prop, Expression<Func<TParam, bool>> where) =>
+            queryable.Where(prop.Compose<Func<TEntity, bool>>(where, Expression.AndAlso));
     }
 }

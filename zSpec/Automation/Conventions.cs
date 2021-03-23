@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,7 +9,7 @@ using zSpec.Expressions;
 
 namespace zSpec.Automation
 {
-    public static class Conventions
+    internal static class Conventions
     {
         internal static readonly IReadOnlyDictionary<SortOrder, MethodInfo> OrderMethods;
 
@@ -27,37 +27,11 @@ namespace zSpec.Automation
             };
         }
 
-        public static ConventionalFilters Filters { get; } = new ConventionalFilters();
+        public static ConventionalFilters Filters { get; } = new();
     }
 
     public static class Conventions<TSubject>
     {
-        public static IOrderedQueryable<TSubject> Sort(IQueryable<TSubject> query, string propertyName,
-            SortOrder order = SortOrder.Ascending)
-        {
-            if (!FastTypeInfo<TSubject>.PublicPropertiesMap.ContainsKey(propertyName))
-            {
-                throw new InvalidOperationException($"There is no public property \"{propertyName}\" " +
-                                                    $"in type \"{typeof(TSubject)}\"");
-            }
-
-            var property = FastTypeInfo<TSubject>.PublicPropertiesMap[propertyName];
-
-            var parameter = Expression.Parameter(typeof(TSubject));
-            var body = Expression.Property(parameter, propertyName);
-
-            var lambda = FastTypeInfo<Expression>.PublicMethods.First(x => x.Name == "Lambda");
-
-            lambda = lambda.MakeGenericMethod(typeof(Func<,>)
-                .MakeGenericType(typeof(TSubject), property.PropertyType));
-
-            var expression = lambda.Invoke(null, new object[] { body, new[] { parameter } });
-
-            var orderBy = Conventions.OrderMethods[order].MakeGenericMethod(typeof(TSubject), property.PropertyType);
-
-            return (IOrderedQueryable<TSubject>) orderBy.Invoke(query, new[] { query, expression });
-        }
-
         public static IQueryable<TSubject> Filter<TPredicate>(IQueryable<TSubject> query,
             TPredicate predicate,
             ComposeKind composeKind = ComposeKind.And)
@@ -89,13 +63,30 @@ namespace zSpec.Automation
             return query.Where(expr);
         }
 
-        private static IEnumerable<IPredicateInfo> ExtractPredicateInfo<TPredicate>(TPredicate predicate,
-            PropertyInfo propertyInfo, PropertyInfo[] propertiesOfColumn,
-            Dictionary<string, PropertyInfo> filterMap)
+        public static IOrderedQueryable<TSubject> Sort(IQueryable<TSubject> query, string propertyName,
+            SortOrder order = SortOrder.Ascending)
         {
-            return propertiesOfColumn
-                .Select(predicateProp => CreatePredicateInfo(predicate, propertyInfo, filterMap, predicateProp))
-                .ToArray();
+            if (!FastTypeInfo<TSubject>.PublicPropertiesMap.ContainsKey(propertyName))
+            {
+                throw new InvalidOperationException($"There is no public property \"{propertyName}\" " +
+                                                    $"in type \"{typeof(TSubject)}\"");
+            }
+
+            var property = FastTypeInfo<TSubject>.PublicPropertiesMap[propertyName];
+
+            var parameter = Expression.Parameter(typeof(TSubject));
+            var body = Expression.Property(parameter, propertyName);
+
+            var lambda = FastTypeInfo<Expression>.PublicMethods.First(x => x.Name == "Lambda");
+
+            lambda = lambda.MakeGenericMethod(typeof(Func<,>)
+                .MakeGenericType(typeof(TSubject), property.PropertyType));
+
+            var expression = lambda.Invoke(null, new object[] { body, new[] { parameter } });
+
+            var orderBy = Conventions.OrderMethods[order].MakeGenericMethod(typeof(TSubject), property.PropertyType);
+
+            return (IOrderedQueryable<TSubject>)orderBy.Invoke(query, new[] { query, expression });
         }
 
         private static IPredicateInfo CreatePredicateInfo<TPredicate>(TPredicate predicate, PropertyInfo propertyInfo,
@@ -120,6 +111,13 @@ namespace zSpec.Automation
             };
         }
 
+        private static IEnumerable<IPredicateInfo> ExtractPredicateInfo<TPredicate>(TPredicate predicate,
+            PropertyInfo propertyInfo, PropertyInfo[] propertiesOfColumn,
+            Dictionary<string, PropertyInfo> filterMap) =>
+            propertiesOfColumn
+                .Select(predicateProp => CreatePredicateInfo(predicate, propertyInfo, filterMap, predicateProp))
+                .ToArray();
+
         private static string GetAttributeKeyOrDefault<TPredicate>(string name)
         {
             var attribute = FastPropInfo<TPredicate>.Attributes[name]
@@ -142,7 +140,7 @@ namespace zSpec.Automation
 
             if (attribute != null)
             {
-                multiValueAttribute = (MultiValueAttribute) attribute;
+                multiValueAttribute = (MultiValueAttribute)attribute;
                 return true;
             }
 

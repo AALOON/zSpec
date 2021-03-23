@@ -7,22 +7,18 @@ namespace zSpec.Expressions
     {
         private class ParameterRebinder : ExpressionVisitor
         {
-            private readonly Dictionary<ParameterExpression, ParameterExpression> _map;
+            private readonly Dictionary<ParameterExpression, ParameterExpression> map;
 
-            private ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map)
-            {
-                _map = map ?? new Dictionary<ParameterExpression, ParameterExpression>();
-            }
+            private ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map) =>
+                this.map = map ?? new Dictionary<ParameterExpression, ParameterExpression>();
 
             public static Expression ReplaceParameters(Dictionary<ParameterExpression, ParameterExpression> map,
-                Expression exp)
-            {
-                return new ParameterRebinder(map).Visit(exp);
-            }
+                Expression exp) =>
+                new ParameterRebinder(map).Visit(exp);
 
             protected override Expression VisitParameter(ParameterExpression p)
             {
-                if (_map.TryGetValue(p, out var replacement))
+                if (this.map.TryGetValue(p, out var replacement))
                 {
                     p = replacement;
                 }

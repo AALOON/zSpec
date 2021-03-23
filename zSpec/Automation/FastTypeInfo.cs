@@ -33,25 +33,18 @@ namespace zSpec.Automation
 
         public static HashSet<Attribute> Attributes => TypeInfo.Attributes;
 
+        public static TSubject Create(params object[] args) => TypeInfo.Create<TSubject>(args);
+
+        public static TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute =>
+            (TAttribute)Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttribute));
+
         public static bool HasAttribute<TAttr>()
-            where TAttr : Attribute
-        {
-            return Attributes.Any(x => x.GetType() == typeof(TAttr));
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
-        {
-            return (TAttribute) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttribute));
-        }
-
-        public static TSubject Create(params object[] args)
-        {
-            return TypeInfo.Create<TSubject>(args);
-        }
+            where TAttr : Attribute =>
+            Attributes.Any(x => x.GetType() == typeof(TAttr));
 
         public static Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
         {
-            var paramExpression = Expression.Parameter(typeof(TObject), "value");
+            var paramExpression = Expression.Parameter(typeof(TObject), "Value");
 
             var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
 
@@ -85,32 +78,32 @@ namespace zSpec.Automation
     public class FastTypeInfo
     {
         private static readonly ConcurrentDictionary<Type, FastTypeInfo> Cache
-            = new ConcurrentDictionary<Type, FastTypeInfo>();
+            = new();
 
-        private readonly ConcurrentDictionary<string, ObjectActivator> _activators;
-        private readonly ConstructorInfo[] _constructors;
+        private readonly ConcurrentDictionary<string, ObjectActivator> activators;
+        private readonly ConstructorInfo[] constructors;
 
-        private readonly Type _type;
+        private readonly Type type;
 
         public FastTypeInfo(Type type)
         {
-            _type = type;
+            this.type = type;
 
-            Attributes = type.GetCustomAttributes().ToHashSet();
+            this.Attributes = type.GetCustomAttributes().ToHashSet();
 
-            PublicProperties = type
+            this.PublicProperties = type
                 .GetProperties()
                 .Where(x => x.CanRead && x.CanWrite)
                 .ToHashSet();
 
-            PublicPropertiesMap = PublicProperties.ToDictionary(p => p.Name);
+            this.PublicPropertiesMap = this.PublicProperties.ToDictionary(p => p.Name);
 
-            PublicMethods = type.GetMethods()
+            this.PublicMethods = type.GetMethods()
                 .Where(x => x.IsPublic && !x.IsAbstract)
                 .ToHashSet();
 
-            _constructors = type.GetConstructors();
-            _activators = new ConcurrentDictionary<string, ObjectActivator>();
+            this.constructors = type.GetConstructors();
+            this.activators = new ConcurrentDictionary<string, ObjectActivator>();
         }
 
         public HashSet<PropertyInfo> PublicProperties { get; }
@@ -121,21 +114,32 @@ namespace zSpec.Automation
 
         public HashSet<Attribute> Attributes { get; }
 
-        public bool HasAttribute<TAttr>()
-            where TAttr : Attribute
+        public TSubject Create<TSubject>(params object[] args)
         {
-            return Attributes.Any(x => x.GetType() == typeof(TAttr));
+            if (typeof(TSubject) != this.type)
+            {
+                throw new InvalidOperationException($"It's wrong TSubject parameter expected: [{this.type}]");
+            }
+
+            return (TSubject)this.activators.GetOrAdd(
+                    GetSignature(args),
+                    GetActivator(this.GetConstructorInfo(args)))
+                .Invoke(args);
         }
 
         public TAttr GetCustomAttribute<TAttr>()
-            where TAttr : Attribute
-        {
-            return (TAttr) Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
-        }
+            where TAttr : Attribute =>
+            (TAttr)this.Attributes.FirstOrDefault(x => x.GetType() == typeof(TAttr));
+
+        public static FastTypeInfo GetInstance(Type type) => Cache.GetOrAdd(type, new FastTypeInfo(type));
+
+        public bool HasAttribute<TAttr>()
+            where TAttr : Attribute =>
+            this.Attributes.Any(x => x.GetType() == typeof(TAttr));
 
         public Func<TObject, TProperty> PropertyGetter<TObject, TProperty>(string propertyName)
         {
-            var paramExpression = Expression.Parameter(typeof(TObject), "value");
+            var paramExpression = Expression.Parameter(typeof(TObject), "Value");
 
             var propertyGetterExpression = Expression.Property(paramExpression, propertyName);
 
@@ -156,36 +160,15 @@ namespace zSpec.Automation
             return result;
         }
 
-        public static FastTypeInfo GetInstance(Type type)
-        {
-            return Cache.GetOrAdd(type, new FastTypeInfo(type));
-        }
-
-        public TSubject Create<TSubject>(params object[] args)
-        {
-            if (typeof(TSubject) != _type)
-            {
-                throw new InvalidOperationException($"It's wrong TSubject parameter expected: [{_type}]");
-            }
-
-            return (TSubject) _activators.GetOrAdd(
-                    GetSignature(args),
-                    GetActivator(GetConstructorInfo(args)))
-                .Invoke(args);
-        }
-
         #region Create private
 
-        private static string GetSignature(object[] args)
-        {
-            return args.Select(x => x.GetType().ToString()).Join(",");
-        }
+        private static string GetSignature(object[] args) => args.Select(x => x.GetType().ToString()).Join(",");
 
         private ConstructorInfo GetConstructorInfo(object[] args)
         {
-            for (var i = 0; i < _constructors.Length; i++)
+            for (var i = 0; i < this.constructors.Length; i++)
             {
-                var consturctor = _constructors[i];
+                var consturctor = this.constructors[i];
                 var ctrParams = consturctor.GetParameters();
                 if (ctrParams.Length != args.Length)
                 {
@@ -213,7 +196,7 @@ namespace zSpec.Automation
             var signature = GetSignature(args);
 
             throw new InvalidOperationException(
-                $"Constructor ({signature}) is not found for {_type}");
+                $"Constructor ({signature}) is not found for {this.type}");
         }
 
         private static ObjectActivator GetActivator(ConstructorInfo ctor)
@@ -247,7 +230,7 @@ namespace zSpec.Automation
             var lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
 
             // compile it
-            var compiled = (ObjectActivator) lambda.Compile();
+            var compiled = (ObjectActivator)lambda.Compile();
             return compiled;
         }
 
