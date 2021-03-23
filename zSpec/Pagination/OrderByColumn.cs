@@ -1,28 +1,22 @@
-﻿using zSpec.Automation;
+using zSpec.Automation;
 
 namespace zSpec.Pagination
 {
     /// <summary>
-    /// Sort column model
+    /// Sort column model.
     /// </summary>
     public class OrderByColumn
     {
         /// <summary>
-        /// Column name
+        /// Column name.
         /// </summary>
         public string Column { get; set; }
 
         public SortOrder? Order { get; set; }
 
-        public static implicit operator OrderByColumn(string str)
-        {
-            return new OrderByColumn { Column = str };
-        }
+        public static implicit operator OrderByColumn(string str) => new() { Column = str };
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"{Column} {Order}";
-        }
+        public override string ToString() => $"{this.Column} {this.Order}";
     }
 }

@@ -7,31 +7,17 @@ namespace zSpec.Tests
 {
     public sealed class StringBuilderLogger : ILogger
     {
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder stringBuilder = new();
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            _stringBuilder.AppendLine(formatter(state, exception));
-        }
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+            Func<TState, Exception, string> formatter) => this.stringBuilder.AppendLine(formatter(state, exception));
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return true;
-        }
+        public bool IsEnabled(LogLevel logLevel) => true;
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return new Disposable();
-        }
+        public IDisposable BeginScope<TState>(TState state) => new Disposable();
 
-        public string GetData()
-        {
-            return _stringBuilder.ToString();
-        }
+        public void Clear() => this.stringBuilder.Clear();
 
-        public void Clear()
-        {
-            _stringBuilder.Clear();
-        }
+        public string GetData() => this.stringBuilder.ToString();
     }
 }

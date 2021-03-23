@@ -13,36 +13,31 @@ namespace zSpec.Automation
     {
         private static readonly FastPropInfo PropInfo;
 
-        static FastPropInfo()
-        {
-            PropInfo = FastPropInfo.GetInstance(typeof(TSubject));
-        }
+        static FastPropInfo() => PropInfo = FastPropInfo.GetInstance(typeof(TSubject));
 
         public static Dictionary<string, object[]> Attributes => PropInfo.Attributes;
 
         public static Dictionary<string, PropertyInfo[]> PropertiesByColumnMap => PropInfo.PropertiesByColumnMap;
 
         public static TAttribute FindAttribute<TAttribute>(string propName)
-            where TAttribute : Attribute
-        {
-            return PropInfo.FindAttribute<TAttribute>(propName);
-        }
+            where TAttribute : Attribute =>
+            PropInfo.FindAttribute<TAttribute>(propName);
     }
 
     public class FastPropInfo
     {
         private static readonly ConcurrentDictionary<Type, FastPropInfo> Cache
-            = new ConcurrentDictionary<Type, FastPropInfo>();
+            = new();
 
         public FastPropInfo(Type type)
         {
             const bool inherit = true;
             var typeInfo = FastTypeInfo.GetInstance(type);
-            Attributes = typeInfo.PublicProperties
+            this.Attributes = typeInfo.PublicProperties
                 .ToDictionary(p => p.Name, p => p.GetCustomAttributes(inherit));
 
-            PropertiesByColumnMap = typeInfo.PublicProperties
-                .GroupBy(p => GetName(p.Name))
+            this.PropertiesByColumnMap = typeInfo.PublicProperties
+                .GroupBy(p => this.GetName(p.Name))
                 .ToDictionary(p => p.Key, p => p.ToArray());
         }
 
@@ -51,30 +46,25 @@ namespace zSpec.Automation
         public Dictionary<string, PropertyInfo[]> PropertiesByColumnMap { get; }
 
         public TAttribute FindAttribute<TAttribute>(string propName)
-            where TAttribute : Attribute
-        {
-            return (TAttribute) Attributes[propName]
+            where TAttribute : Attribute =>
+            (TAttribute)this.Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(TAttribute));
-        }
 
-        public static FastPropInfo GetInstance(Type type)
-        {
-            return Cache.GetOrAdd(type, new FastPropInfo(type));
-        }
+        public static FastPropInfo GetInstance(Type type) => Cache.GetOrAdd(type, new FastPropInfo(type));
 
         /// <summary>
         /// Returns column name of attributes exists in property or default propName
         /// </summary>
         private string GetName(string propName)
         {
-            var attribute = Attributes[propName]
+            var attribute = this.Attributes[propName]
                 .FirstOrDefault(p => p.GetType() == typeof(ColumnNameAttribute));
             if (attribute == null)
             {
                 return propName;
             }
 
-            var columnAttribute = (ColumnNameAttribute) attribute;
+            var columnAttribute = (ColumnNameAttribute)attribute;
 
             return columnAttribute.Name;
         }

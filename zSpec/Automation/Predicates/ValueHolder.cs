@@ -1,4 +1,4 @@
-﻿namespace zSpec.Automation.Predicates
+namespace zSpec.Automation.Predicates
 {
     /// <summary>
     /// Value holder for parametrization query
@@ -6,9 +6,8 @@
     internal class ValueHolder<TValue>
     {
         /// <summary>
-        /// value which will be parametrized
+        /// Value which will be parametrized
         /// </summary>
-        // ReSharper disable once InconsistentNaming
-        public TValue value;
+        public TValue Value { get; set; }
     }
 }

@@ -7,10 +7,7 @@ namespace zSpec.Tests.Context
     {
         private const int MatureAge = 18;
 
-        public User()
-        {
-            CreatedAt = DateTimeOffset.UtcNow;
-        }
+        public User() => this.CreatedAt = DateTimeOffset.UtcNow;
 
         public long Id { get; set; }
 
@@ -22,38 +19,21 @@ namespace zSpec.Tests.Context
 
         public DateTimeOffset CreatedAt { get; set; }
 
-        public static Spec<User> IsMatureSpec => new Spec<User>(user => user.Age >= MatureAge);
+        public static Spec<User> IsMatureSpec => new(user => user.Age >= MatureAge);
 
-        public static Spec<User> IsHaveEmailSpec => new Spec<User>(user => user.Email != null);
+        public static Spec<User> IsHaveEmailSpec => new(user => user.Email != null);
 
-        public bool IsMature()
-        {
-            return IsMatureSpec.IsSatisfiedBy(this);
-        }
+        public bool IsHasName(string name) => IsHasNameSpec(name).IsSatisfiedByNonCache(this);
 
-        public bool IsHaveEmail()
-        {
-            return IsHaveEmailSpec.IsSatisfiedBy(this);
-        }
+        public bool IsHasNameEqualsEquals(string name) => IsHasNameEqualsSpec(name).IsSatisfiedBy(this);
 
-        public static Spec<User> IsHasNameEqualsSpec(string name)
-        {
-            return new Spec<User>(user => user.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        }
+        public static Spec<User> IsHasNameEqualsSpec(string name) =>
+            new(user => user.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-        public bool IsHasNameEqualsEquals(string name)
-        {
-            return IsHasNameEqualsSpec(name).IsSatisfiedBy(this);
-        }
+        public static Spec<User> IsHasNameSpec(string name) => new(user => user.Name == name);
 
-        public static Spec<User> IsHasNameSpec(string name)
-        {
-            return new Spec<User>(user => user.Name == name);
-        }
+        public bool IsHaveEmail() => IsHaveEmailSpec.IsSatisfiedBy(this);
 
-        public bool IsHasName(string name)
-        {
-            return IsHasNameSpec(name).IsSatisfiedByNonCache(this);
-        }
+        public bool IsMature() => IsMatureSpec.IsSatisfiedBy(this);
     }
 }

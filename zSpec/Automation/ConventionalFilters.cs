@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -6,7 +6,7 @@ using zSpec.Automation.Attributes;
 
 namespace zSpec.Automation
 {
-    public class ConventionalFilters
+    internal class ConventionalFilters
     {
         private static readonly MethodInfo StartsWithMethod = typeof(string)
             .GetMethod("StartsWith", new[] { typeof(string) });
@@ -15,7 +15,7 @@ namespace zSpec.Automation
             .GetMethod("Contains", new[] { typeof(string) });
 
         private static readonly Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>> Filters
-            = new Dictionary<TypeKey, Func<MemberExpression, Expression, Expression>>
+            = new()
             {
                 {
                     new TypeKey(typeof(string), StartWithFilterAttribute.Key),
@@ -46,7 +46,6 @@ namespace zSpec.Automation
                 { new TypeKey(typeof(byte), ToFilterAttribute.Key), Expression.LessThanOrEqual },
                 { new TypeKey(typeof(sbyte), FromFilterAttribute.Key), Expression.GreaterThanOrEqual },
                 { new TypeKey(typeof(sbyte), ToFilterAttribute.Key), Expression.LessThanOrEqual },
-
                 { new TypeKey(typeof(DateTime?), FromFilterAttribute.Key), Expression.GreaterThanOrEqual },
                 { new TypeKey(typeof(DateTime?), ToFilterAttribute.Key), Expression.LessThanOrEqual },
                 { new TypeKey(typeof(DateTimeOffset?), FromFilterAttribute.Key), Expression.GreaterThanOrEqual },
@@ -73,7 +72,7 @@ namespace zSpec.Automation
         {
         }
 
-        public static Dictionary<Type, string> AttributeKeys { get; } = new Dictionary<Type, string>
+        public static Dictionary<Type, string> AttributeKeys { get; } = new()
         {
             { typeof(StartWithFilterAttribute), StartWithFilterAttribute.Key },
             { typeof(ContainsFilterAttribute), ContainsFilterAttribute.Key },

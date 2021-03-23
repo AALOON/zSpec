@@ -7,24 +7,18 @@ namespace zSpec.Tests
 {
     public sealed class StringBuilderLoggerProvider : ILoggerProvider, IDisposable, ILogEventEnricher
     {
-        private readonly StringBuilderLogger _logger = new StringBuilderLogger();
-
-        public void Dispose()
-        {
-        }
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            return _logger;
-        }
+        private readonly StringBuilderLogger logger = new();
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
         }
 
-        public StringBuilderLogger GetLogger()
+        public void Dispose()
         {
-            return _logger;
         }
+
+        public ILogger CreateLogger(string categoryName) => this.logger;
+
+        public StringBuilderLogger GetLogger() => this.logger;
     }
 }

@@ -7,57 +7,36 @@ namespace zSpec.Tests
 {
     public abstract class TestBase
     {
-        protected TestContext DbContext => TestFixture.Container.Resolve<TestContext>();
+        protected TestContext DbContext => this.TestFixture.Container.Resolve<TestContext>();
 
         protected TestBaseFixture TestFixture { get; set; }
 
-        protected IContainer Container => TestFixture.Container;
+        protected IContainer Container => this.TestFixture.Container;
 
-        protected string LoggedData => Container.Resolve<StringBuilderLoggerProvider>().GetLogger().GetData();
+        protected string LoggedData => this.Container.Resolve<StringBuilderLoggerProvider>().GetLogger().GetData();
 
-        protected ILogger Logger => TestFixture.Container.Resolve<ILogger>();
+        protected ILogger Logger => this.TestFixture.Container.Resolve<ILogger>();
 
         [OneTimeSetUp]
-        public void TestOneTimeSetup()
-        {
-            FixtureInitialize();
-        }
+        public void TestOneTimeSetup() => this.FixtureInitialize();
 
         [OneTimeTearDown]
-        public void TestOneTimeTearDown()
-        {
-            FixtureCleanUp();
-        }
+        public void TestOneTimeTearDown() => this.FixtureCleanUp();
 
         [SetUp]
-        public void TestSetUp()
-        {
-            SetUp();
-        }
+        public void TestSetUp() => this.SetUp();
 
         [TearDown]
-        public void TestTearDown()
-        {
-            CleanUp();
-        }
+        public void TestTearDown() => this.CleanUp();
 
-        protected virtual void FixtureInitialize()
-        {
-            TestFixture = new TestBaseFixture();
-        }
+        protected virtual void CleanUp() => this.Container.Resolve<StringBuilderLoggerProvider>().GetLogger().Clear();
 
-        protected virtual void FixtureCleanUp()
-        {
-            TestFixture.Dispose();
-        }
+        protected virtual void FixtureCleanUp() => this.TestFixture.Dispose();
+
+        protected virtual void FixtureInitialize() => this.TestFixture = new TestBaseFixture();
 
         protected virtual void SetUp()
         {
-        }
-
-        protected virtual void CleanUp()
-        {
-            Container.Resolve<StringBuilderLoggerProvider>().GetLogger().Clear();
         }
     }
 }
